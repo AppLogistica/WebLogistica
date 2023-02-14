@@ -1,0 +1,25 @@
+
+.topo {
+  background-color: brown;
+  height: 10vh;
+  width: 80vw;
+  margin-top: 1vw;
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.botao {
+  margin: 0 10px 0 10px;
+  height: 3rem;
+  width: 15rem;
+  border-radius: 10px;
+  border-style: none;
+}
+
+.corpo {
+  background-color: blueviolet;
+  height: 86.5vh;
+}
