@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
+import { collection, addDoc, onSnapshot, query, where, orderBy, limit, limitToLast } from "firebase/firestore";
+import toast, { Toaster } from 'react-hot-toast'
+
 import "./styles.css";
-import { FornecedorProps } from "../paginas/main/Main";
+import { FornecedorProps, SemanaProps } from "../paginas/main/Main";
+import db from "../firebase/database";
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -12,7 +16,8 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [dadosSemana, setDadosSemana] = useState<{ [key: string]: number[] }>(
     {}
   );
-
+  const [semana, setSemana] = useState<SemanaProps[]>([]);
+  const [count, setCount] = useState(0)
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -46,7 +51,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           <th>Código</th>
           <th>Fornecedor</th>
           {DiasSemana.map((day) => (
-            <th key={day.toISOString()}>
+            <th key={format(day, "dd/MM/yyyy")}>
               {format(day, "dd/MM/yyyy")}{" "}
             </th>
           ))}
@@ -57,54 +62,106 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const renderTableBody = () => {
     return (
-<tbody>
-  {fornec.map((fornecedor) => (
-    <tr key={fornecedor.id_fornecedor}> {/* adicione a propriedade "key" aqui */}
-      <td>{fornecedor.id_fornecedor}</td>
-      <td>{fornecedor.nome}</td>
-      {DiasSemana.map((day) => (
-        <td key={day.toISOString()}>
-          <input
-            type="checkbox"
-            checked={
-              (dadosSemana[day.toISOString()] || []).indexOf(
-                fornecedor.id_fornecedor
-              ) > -1
-            }
-            onChange={(event) =>
-              handleCheckboxChange(
-                fornecedor.id_fornecedor,
-                day.toISOString(),
-                event.target.checked
-              )
-            }
-          />
-        </td>
-      ))}
-    </tr>
-  ))}
-</tbody>
+      <tbody className="topoTabela">
+        {fornec.map((fornecedor) => (
+          <tr key={fornecedor.id_fornecedor}>
+            <td>{fornecedor.id_fornecedor}</td>
+            <td>{fornecedor.nome}</td>
+            {DiasSemana.map((day) => (
+              <td key={format(day, "dd/MM/yyyy")}>
+                <input
+                  type="checkbox"
+                  checked={
+                    (dadosSemana[format(day, "dd/MM/yyyy")] || []).indexOf(
+                      fornecedor.id_fornecedor
+                    ) > -1
+                  }
+                  onChange={(event) =>
+                    handleCheckboxChange(
+                      fornecedor.id_fornecedor,
+                      format(day, "dd/MM/yyyy"),
+                      event.target.checked
+                    )
+                  }
+                />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
     );
   };
 
+  async function addSemana() {
+    let num: number = semana.length;
+
+    console.log("Dados da semana:");
+    Object.entries(dadosSemana).forEach(([diaSemana, dados]) => {
+      console.log(`- ${diaSemana}: ${dados.join(", ")}`);
+
+      dados.map(async item => {
+        if (dados.length > 0) {
+          try {
+            num++;
+            const docRef = await addDoc(collection(db, "semana"), {
+              id_semana: num,
+              id_fornecedor: item,
+              id_caixa: null,
+              data: diaSemana,
+              inserido_em: format(new Date(), "dd/MM/yyyy"),
+              alterado_em: null
+            });
+            console.log("Document written with ID: ", docRef.id);
+            toast.success('Dados salvos com sucesso!', { duration: 3000 })
+
+          } catch (e) {
+            console.error("Error adding document: ", e);
+            toast.error('Erro ao salvar dados!', { duration: 3000 })
+          }
+        }
+      })
+    });
+  }
+
+  useEffect(() => {
+    function carregaSemana() {
+
+      const unsub = onSnapshot(collection(db, "semana"), (querySnapshot) => {
+        const data = querySnapshot.docs.map((doc) => doc.data() as SemanaProps);
+        setSemana(data);
+      });
+      // retorna uma função de limpeza para cancelar a inscrição
+
+      return () => {
+        unsub();
+      };
+    }
+
+    carregaSemana();
+  }, [])
+
+
+
   return (
     <>
+    <div><Toaster /></div>
       <div className="topTable">
+        
         <button onClick={SemanaAnterior}>Semana Anterior</button>
 
-        <span>{format(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
+        <span >{format(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
         <button onClick={SemanaSeguinte}>Próxima Semana</button>
       </div>
 
       <table>
         {renderTableHeader()}
         {renderTableBody()}
-        <div className="caixaBotao">
-        <button className="botaoConfirma" onClick={() => console.log(dadosSemana)}>
+      </table>
+      <div className="caixaBotao">
+        <button className="botaoConfirma" onClick={addSemana}>
           Confirmar
         </button>
       </div>
-      </table>
 
     </>
   );

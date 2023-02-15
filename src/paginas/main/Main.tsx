@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
 import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
 import db from './../../firebase/database';
-//import firestoreDb from './firebase/database';
-
 
 interface Supplier {
   id: number;

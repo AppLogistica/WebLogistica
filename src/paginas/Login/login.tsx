@@ -25,10 +25,7 @@ export function Login() {
       })
       .catch((error) => {
         const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log('errorMessage: ' + errorMessage);
-        console.log('errorCode: ' + errorCode);
-        
+        const errorMessage = error.message;    
         
         if (!email){
           return toast.error('Preencha o campo e-mail', {duration: 3000})

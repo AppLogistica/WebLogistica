@@ -1,17 +1,17 @@
 
+
 table {
   border-collapse: collapse;
   width: 100%;
-  margin-bottom: 1em;
   background-color: #242424;
+
+  box-shadow: 0 0 5px #8f7cec, 0 0 10px #8f7cec;
 }
 
 th,
 td {
   padding: 0.5em;
   text-align: center;
-  
-  
 }
 
 th {
@@ -21,8 +21,8 @@ th {
 }
 
 td {
-  border-bottom: 1px solid #ccc;
-  
+  border-bottom: 1px solid #8f7cec;
+  box-shadow: 0 0 2px #8f7cec
 }
 
 input[type="checkbox"] {
@@ -30,13 +30,34 @@ input[type="checkbox"] {
   display: block;
 }
 
+.topTable{
+
+  display: flex;
+  justify-content: space-between;
+  background-color: #242424;
+  width: 100%;
+}
+
+.caixaBotao {
+  background-color: #242424;
+  margin-top: 0.4rem;
+  box-shadow: 0 0 0 3.5px  #242424;
+}
+
 button {
   height: 40px;
-  width: 130px;
+  width: 140px;
   border-radius: 10px;
-  border-style: none;
+
   margin-bottom: 2rem;
-  background-color: rgb(255, 255, 255);
+  color: #6c6672;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: .3s;
+  letter-spacing: 4px;
+  border: 1px solid #8f7cec;
+  box-shadow: 0 0 5px #8f7cec, 0 0 10px #8f7cec;
 
 }
 
@@ -46,13 +67,6 @@ button:hover{
 
 button:active{
   background-color: rgb(217, 224, 224);
-}
-
-.topTable{
-
-  display: flex;
-  justify-content: space-between;
-  background-color: #242424;
 }
 
 .botaoConfirma {
