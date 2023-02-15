@@ -1,33 +1,18 @@
-
-import './App.css'
-import dayjs from 'dayjs';
-import 'dayjs/locale/pt-br';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
-import WeekTable from './componenetes/tabela';
-import Table from './componenetes/tabela';
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Login } from "./paginas/Login/login";
+import { Main } from "./paginas/main/Main";
 
 function App() {
-
-  // moment().week(week).startOf('week').add(i, 'day')
   return (
-
-    <main>
-      <div className='topo'>
-
-        <button className='botao'>Antetior</button>
-        <button className='botao'>Proximo</button>
-
-      </div>
-
-      <div className='corpo'>
-      <Table/>
-      </div>
-    </main>
-  )
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/main" element={<Main />} />
+        </Routes>
+      </Router>
+    </div>
+  );
 }
 
-export default App
-
-
-// <WeekTable />
+export default App;

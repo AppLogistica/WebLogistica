@@ -1,0 +1,71 @@
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 1em;
+  background-color: #242424;
+}
+
+th,
+td {
+  padding: 0.5em;
+  text-align: center;
+  
+  
+}
+
+th {
+
+  font-weight: bold;
+  
+}
+
+td {
+  border-bottom: 1px solid #ccc;
+  
+}
+
+input[type="checkbox"] {
+  margin: 0 auto;
+  display: block;
+}
+
+button {
+  height: 40px;
+  width: 130px;
+  border-radius: 10px;
+  border-style: none;
+  margin-bottom: 2rem;
+  background-color: rgb(255, 255, 255);
+
+}
+
+button:hover{
+  opacity: 0.8;
+}
+
+button:active{
+  background-color: rgb(217, 224, 224);
+}
+
+.topTable{
+
+  display: flex;
+  justify-content: space-between;
+  background-color: #242424;
+}
+
+.botaoConfirma {
+  background-color: rgb(27, 204, 27);
+  font-weight: bold;
+  color: white;
+  margin-top: 1.2rem;
+}
+
+.botaoConfirma:hover {
+  opacity: 0.8;
+}
+
+.botaoConfirma:active{
+  background-color: rgb(38, 173, 38);
+}
