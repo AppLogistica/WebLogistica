@@ -2,8 +2,8 @@ import "./styles.css";
 
 import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
-import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
-import db from './../../firebase/database';
+import { onSnapshot, collection } from "firebase/firestore";
+import db from '../../firebase/database';
 
 export interface SemanaProps {
   ativo: boolean;
