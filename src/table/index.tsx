@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, addDoc, onSnapshot, query, where, orderBy, limit, limitToLast } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
@@ -9,15 +9,18 @@ import db from "../firebase/database";
 
 export interface TableProps {
   fornec: FornecedorProps[];
+  semanac: SemanaProps[];
 }
 
-const Table: React.FC<TableProps> = ({ fornec }) => {
+interface DadosSemana {
+  id_semana: [];
+  [key: string]: number[];
+}
+
+const Table: React.FC<TableProps> = ({ semanac, fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
-  const [dadosSemana, setDadosSemana] = useState<{ [key: string]: number[] }>(
-    {}
-  );
+  const [dadosSemana, setDadosSemana] = useState<DadosSemana>({ id_semana: [] });
   const [semana, setSemana] = useState<SemanaProps[]>([]);
-  const [count, setCount] = useState(0)
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -34,12 +37,12 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const handleCheckboxChange = (
     fornecedorId: number,
     data: string,
-    checked: boolean
+    checked: boolean,
   ) => {
     setDadosSemana((prevState) => ({
       ...prevState,
       [data]: checked
-        ? [...(prevState[data] || []), fornecedorId]
+        ? [...(prevState[data] || []), fornecedorId,]
         : prevState[data].filter((id) => id !== fornecedorId),
     }));
   };
@@ -96,22 +99,27 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     let num: number = semana.length;
 
     console.log("Dados da semana:");
-    Object.entries(dadosSemana).forEach(([diaSemana, dados]) => {
-      console.log(`- ${diaSemana}: ${dados.join(", ")}`);
+    Object.entries(dadosSemana).forEach(([dia, dados]) => {
+      console.log(`- ${dia}: ${dados.join(", ")}`);
 
       dados.map(async item => {
         if (dados.length > 0) {
+
+          let dataDia = dia.replaceAll('/', '')
+          console.log(dataDia);
+          
           try {
             num++;
-            const docRef = await addDoc(collection(db, "semana"), {
+            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${item}`), {
               id_semana: num,
               id_fornecedor: item,
               id_caixa: null,
-              data: diaSemana,
+              data:  dia,
+              ativo: true,
               inserido_em: format(new Date(), "dd/MM/yyyy"),
               alterado_em: null
             });
-            console.log("Document written with ID: ", docRef.id);
+            console.log("Document written with ID: ", docRef);
             toast.success('Dados salvos com sucesso!', { duration: 3000 })
 
           } catch (e) {
@@ -124,11 +132,17 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   }
 
   useEffect(() => {
-    function carregaSemana() {
+    
+    async function carregaSemana() {
 
-      const unsub = onSnapshot(collection(db, "semana"), (querySnapshot) => {
+      const unsub = await onSnapshot(collection(db, "semana"), (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as SemanaProps);
         setSemana(data);
+
+        semana.forEach((item) => {
+          const { data, id_fornecedor } = item;
+          handleCheckboxChange(id_fornecedor, `${data}`, true);
+        });
       });
       // retorna uma função de limpeza para cancelar a inscrição
 
@@ -137,16 +151,20 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
       };
     }
 
-    carregaSemana();
-  }, [])
-
-
+    carregaSemana().then(() => {
+      // Executa a função handleCheckboxChange após a conclusão da busca no banco de dados
+      semanac.forEach((item) => {
+        const { data, id_fornecedor } = item;
+        handleCheckboxChange(id_fornecedor, `${data}`, true);
+      });
+    })
+  }, []);
 
   return (
     <>
-    <div><Toaster /></div>
+      <div><Toaster /></div>
       <div className="topTable">
-        
+
         <button onClick={SemanaAnterior}>Semana Anterior</button>
 
         <span >{format(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>

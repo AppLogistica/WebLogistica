@@ -5,12 +5,8 @@ import Table, { TableProps } from '../../table'
 import { doc, onSnapshot, getDoc, collection } from "firebase/firestore";
 import db from './../../firebase/database';
 
-interface Supplier {
-  id: number;
-  name: string;
-}
-
 export interface SemanaProps {
+  ativo: boolean;
   alterado_em: Date;
   data: Date;
   id_caixa: null | number;
@@ -66,11 +62,13 @@ export function Main() {
   }, []);
 
   const sortedData = [...fornecedor].sort((a, b) => a.id_fornecedor - b.id_fornecedor);
+  const sortedsemana = [...semana].sort((a, b) => a.id_semana - b.id_semana);
 
   return (
     <div className="App">
       <Table
         fornec={sortedData}
+        semanac={semana}
       />
     </div>
   )
