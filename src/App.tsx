@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Login } from "./paginas/Login";
-import { Main } from "./paginas/main";
+import { Login } from "./paginas/Login/index";
+import { Main } from "./paginas/main/index";
 
 function App() {
   return (

@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@react-navigation/native": "^6.1.4",
+    "@react-navigation/native-stack": "^6.9.10",
     "@types/styled-components": "^5.1.26",
     "date-fns": "^2.29.3",
     "date-fns-tz": "^2.0.0",
