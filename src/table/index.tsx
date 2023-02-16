@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
@@ -9,7 +9,6 @@ import db from "../firebase/database";
 
 export interface TableProps {
   fornec: FornecedorProps[];
-  semanac: SemanaProps[];
 }
 
 interface DadosSemana {
@@ -17,7 +16,7 @@ interface DadosSemana {
   [key: string]: number[];
 }
 
-const Table: React.FC<TableProps> = ({ semanac, fornec }) => {
+const Table: React.FC<TableProps> = ({ fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({ id_semana: [] });
   const [semana, setSemana] = useState<SemanaProps[]>([]);
@@ -129,36 +128,38 @@ const Table: React.FC<TableProps> = ({ semanac, fornec }) => {
         }
       })
     });
+
+    location.reload();
+  }
+
+  function carregaMarcados(){
+    console.log('teste');
+    
   }
 
   useEffect(() => {
     
     async function carregaSemana() {
 
-      const unsub = await onSnapshot(collection(db, "semana"), (querySnapshot) => {
-        const data = querySnapshot.docs.map((doc) => doc.data() as SemanaProps);
-        setSemana(data);
+      const querySnapshot = await getDocs(collection(db, "semana"));
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
 
-        semana.forEach((item) => {
-          const { data, id_fornecedor } = item;
-          handleCheckboxChange(id_fornecedor, `${data}`, true);
-        });
+        handleCheckboxChange(doc.data().id_fornecedor, `${doc.data().data}`, true);
+
+        setSemana((semana) => [...semana, doc.data() as SemanaProps]);
+        console.log('semana: ' + semana);
+        
       });
-      // retorna uma função de limpeza para cancelar a inscrição
 
-      return () => {
-        unsub();
-      };
     }
+    
+     carregaSemana();
 
-    carregaSemana().then(() => {
-      // Executa a função handleCheckboxChange após a conclusão da busca no banco de dados
-      semanac.forEach((item) => {
-        const { data, id_fornecedor } = item;
-        handleCheckboxChange(id_fornecedor, `${data}`, true);
-      });
-    })
   }, []);
+
+
 
   return (
     <>

@@ -68,7 +68,6 @@ export function Main() {
     <div className="App">
       <Table
         fornec={sortedData}
-        semanac={semana}
       />
     </div>
   )
