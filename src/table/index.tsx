@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
 import { collection, onSnapshot, setDoc, doc, getDoc, getDocs } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom';
 
 import "./styles.css";
 import { FornecedorProps, SemanaProps } from "../paginas/main/Main";
@@ -20,6 +21,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({ id_semana: [] });
   const [semana, setSemana] = useState<SemanaProps[]>([]);
+  const navigate = useNavigate();
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -96,7 +98,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   async function addSemana() {
     let num: number = semana.length;
-
+    let salvou : boolean = true;
     console.log("Dados da semana:");
     Object.entries(dadosSemana).forEach(([dia, dados]) => {
       console.log(`- ${dia}: ${dados.join(", ")}`);
@@ -119,22 +121,22 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
               alterado_em: null
             });
             console.log("Document written with ID: ", docRef);
-            toast.success('Dados salvos com sucesso!', { duration: 3000 })
+            salvou = true;
+           // toast.success('Dados salvos com sucesso!', { duration: 3000 })
 
           } catch (e) {
             console.error("Error adding document: ", e);
             toast.error('Erro ao salvar dados!', { duration: 3000 })
+            salvou=false;
+            return
           }
         }
       })
     });
 
-    location.reload();
-  }
-
-  function carregaMarcados(){
-    console.log('teste');
-    
+    if(salvou){
+      toast.success('Dados salvos com sucesso!', { duration: 3000 })
+    }
   }
 
   useEffect(() => {
