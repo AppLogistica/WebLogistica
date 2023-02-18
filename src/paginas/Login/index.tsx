@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
-import toast, { Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext';
-import { useSession } from '../../context/SessionContext';
+
+import { menssagem } from '../../componentes/menssagem';
 
 export function Login() {
   const navigate = useNavigate();
@@ -11,15 +12,51 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { signIn } = useAuth();
+  const { signIn, auth, resetPassword } = useAuth();
 
-
-  function handleSignInClick() {
+  function handleSignInResetPass() {
 
     signIn(email, password)
-    .then((res) => {
-      navigate('/main');
-    })
+      .then((res) => {
+        navigate('/main');
+      })
+      .catch((erro) => {
+        const errorCode = erro.code;
+        const errorMessage = erro.message;
+
+        if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
+          return menssagem('Email ou senha incorretos!', true)
+        }
+        else if (erro.code === 'auth/invalid-email') {
+          return menssagem('Informe um endereço de email válido!', true);
+        }
+        else if (erro.code === 'auth/user-not-found') {
+          return menssagem('Email não encontrado, verifique se há algum erro de digitação!', true)
+        } else if (erro.code === 'auth/internal-error') {
+
+          if (!email || !password) {
+            console.log(erro.code);
+          }
+
+        }
+
+      })
+  }
+
+  function redefineSenha() {
+    resetPassword(email)
+      .then(() => {
+        if (!email) {
+          return menssagem('aqui', true);
+        }
+        menssagem('Foi enviado um link para o seu email para redefinir sua senha! Verifique a caixa de spam!', false);
+      })
+      .catch((erro) => {
+
+        if (erro.code === 'auth/user-not-found') {
+          return menssagem('Email não encontrado, verifique se há algum erro de digitação!', true)
+        }
+      })
   }
 
   return (
@@ -37,13 +74,13 @@ export function Login() {
             <label>Senha</label>
           </div>
 
-          <div className="button-form" onClick={handleSignInClick}>
+          <div className="button-form" onClick={() => handleSignInResetPass()}>
             <a id="submit" href="#">
               Entrar
             </a>
 
-            <a id="recover-pass" href="#">
-              Recuperar senha
+            <a id="recover-pass" href="#" onClick={redefineSenha}>
+              Redefinir senha
             </a>
           </div>
 

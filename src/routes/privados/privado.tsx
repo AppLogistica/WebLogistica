@@ -21,7 +21,7 @@ onAuthStateChanged(auth, (user) => {
     const uid = user.uid;
     // ...
   } else {
-    <Navigate to={redirectTo} />
+    
   }
 });
 
