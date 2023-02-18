@@ -37,7 +37,6 @@ export function Main() {
         const data = querySnapshot.docs.map((doc) => doc.data() as SemanaProps);
         setSemana(data);
       });
-      console.log(semana);
       // retorna uma função de limpeza para cancelar a inscrição
       return () => {
         unsub();
@@ -50,7 +49,6 @@ export function Main() {
         setFornecedor(data);
         // console.log(data)
       });
-      console.log(fornecedor);
       // retorna uma função de limpeza para cancelar a inscrição
       return () => {
         unsub();

@@ -16,6 +16,9 @@ import {
   sendPasswordResetEmail,
   getAuth,
 } from 'firebase/auth'
+import { useSession } from './SessionContext'
+import { setPersistence, browserSessionPersistence } from "firebase/auth";
+
 
 export interface AuthProviderProps {
   children?: ReactNode
@@ -46,9 +49,21 @@ export function useAuth(): AuthContextModel {
   return useContext(AuthContext)
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
+export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
+
   const auth = getAuth();
+ 
+  setPersistence(auth, browserSessionPersistence)
+      .then(() => {
+
+      
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
 
   function signUp(email: string, password: string): Promise<UserCredential> {
     return createUserWithEmailAndPassword(auth, email, password)
@@ -65,7 +80,9 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
       //function that firebase notifies you if a user is set
       const unsubsrcibe = await auth.onAuthStateChanged((user) => {
 
+        const { setSession } = useSession();
         setUser(user)
+        setSession({ idUser: user.uid })
       })
       return unsubsrcibe
     })
@@ -77,7 +94,7 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
     user,
     signIn,
     resetPassword,
-    auth,
+    auth
   }
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
 }
@@ -85,75 +102,3 @@ export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
 export const useUserContext = (): UserContextState => {
   return useContext(UserStateContext)
 }
-// src/AuthProvider.tsx
-/*
-import React, {
-  ReactNode,
-  useEffect,
-  useState,
-  useContext,
-  createContext,
-} from 'react'
-
-import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  User,
-  UserCredential
-} from 'firebase/auth'
-
-type ContextProps = {
-  user: User | null;
-  authenticated: boolean;
-  setUser: any;
-  loadingAuthState: boolean;
-  signIn: (email: string, password: string) => Promise<UserCredential>;
-};
-
-export interface AuthProviderProps {
-  children?: ReactNode
-}
-
-export const AuthContext = React.createContext<Partial<ContextProps>>({});
-
-export const AuthProvider = ({ children }: AuthProviderProps): JSX.Element => {
-  const [user, setUser] = useState(null as User | null);
-  const [loadingAuthState, setLoadingAuthState] = useState(true);
-
-
-  const auth = getAuth();
-
-  const signIn = (email: string, password: string): Promise<UserCredential> => {
-    return signInWithEmailAndPassword(auth, email, password)
-  }
-
-  useEffect(() => {
-
-    const auth = getAuth();
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        setUser(user);
-        setLoadingAuthState(false);
-        // ...
-      } else {
-        // User is signed out
-        // ...
-      }
-    });
-  }, []);
-
-  const values = {
-    signIn,
-    user,
-    authenticated: user !== null,
-    setUser,
-    loadingAuthState
-  }
-  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
-
-}
-*/

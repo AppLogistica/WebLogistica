@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import toast, { Toaster } from 'react-hot-toast'
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
+import { useSession } from '../../context/SessionContext';
 
 export function Login() {
   const navigate = useNavigate();
@@ -12,9 +13,11 @@ export function Login() {
 
   const { signIn } = useAuth();
 
+
   function handleSignInClick() {
+
     signIn(email, password)
-    .then(() => {
+    .then((res) => {
       navigate('/main');
     })
   }

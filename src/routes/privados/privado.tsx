@@ -1,31 +1,31 @@
+import { getAuth, onAuthStateChanged, setPersistence } from "firebase/auth";
 import { Navigate } from "react-router-dom";
-import { AuthProvider, AuthContext, useAuth } from "../../../context/AuthContext";
-import {
-  Auth,
-  UserCredential,
-  User,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  getAuth,
-  getIdToken
-} from 'firebase/auth'
+import { useAuth } from "../../context/AuthContext";
+import { useSession } from "../../context/SessionContext";
+
 // @ts-ignore
 export const PrivateRoute = ({ children, redirectTo }) => {
   
-  const { auth, user } = useAuth();
-  
-  console.log(auth.currentUser?.getIdToken());
+  let token: string = '';
 
- 
-  
-  const token = auth.currentUser?.getIdToken()
-   .catch(() => {
-      console.log(token);
-   })
-  
+  const auth = getAuth();
+onAuthStateChanged(auth, (user) => {
+  if (user) {
 
-  const Logado = auth.currentUser;
+    user.getIdTokenResult().then(item => {
+     token = item.token;
 
-  return Logado ? children : <Navigate to={redirectTo} />;
+      
+    })
+    
+    const uid = user.uid;
+    // ...
+  } else {
+    <Navigate to={redirectTo} />
+  }
+});
+
+
+  return JSON.parse(sessionStorage.getItem(`firebase:authUser:${auth.app.options.apiKey}:[DEFAULT]`)) ? children : <Navigate to={redirectTo} />;
 };
+

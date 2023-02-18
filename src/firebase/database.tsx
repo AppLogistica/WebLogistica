@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 
 import {  getFirestore  } from "firebase/firestore";
+import { Auth } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -22,10 +23,9 @@ const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
 const db = getFirestore(app);
- 
-// Subsequent queries will use persistence, if it was enabled successfully
 
-export default db;
+
+ export default db
 
 
 
