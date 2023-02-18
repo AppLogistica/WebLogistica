@@ -99,12 +99,21 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   async function addSemana() {
     let num: number = semana.length;
     let salvou: boolean = true;
+
+ /*   const diferenca = semana.filter(item => !dadosSemana.includes(item))
+    .concat(lista2.filter(item => !lista1.includes(item)));*/
+
+
     Object.entries(dadosSemana).forEach(([dia, dados]) => {
 
       dados.map(async item => {
         if (dados.length > 0) {
 
           let dataDia = dia.replaceAll('/', '')
+
+          const a = semana.filter(item => {
+            item.id != `${dataDia}.${item}`
+          })
 
           try {
             num++;
