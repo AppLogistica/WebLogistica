@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import toast, { Toaster } from 'react-hot-toast'
-import {  AuthProvider, useAuth, useUserContext } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 
 export function Login() {
   const navigate = useNavigate();
@@ -18,7 +18,6 @@ export function Login() {
       navigate('/main');
     })
   }
-
 
   return (
     <>
