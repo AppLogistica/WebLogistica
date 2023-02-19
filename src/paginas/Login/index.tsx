@@ -74,7 +74,7 @@ export function Login() {
             <label>Senha</label>
           </div>
 
-          <div className="button-form" onClick={() => handleSignInResetPass()}>
+          <div className="button-form" onClick={handleSignInResetPass}>
             <a id="submit" href="#">
               Entrar
             </a>
