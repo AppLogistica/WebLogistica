@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import "./styles.css";
 import { FornecedorProps, SemanaProps } from "../paginas/main";
 import db from "../firebase/database";
+import { menssagem } from "../componentes/menssagem";
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -100,26 +101,20 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     let num: number = semana.length;
     let salvou: boolean = true;
 
- /*   const diferenca = semana.filter(item => !dadosSemana.includes(item))
-    .concat(lista2.filter(item => !lista1.includes(item)));*/
-
-
     Object.entries(dadosSemana).forEach(([dia, dados]) => {
 
-      dados.map(async item => {
+      dados.map(async id_fornec => {
         if (dados.length > 0) {
 
           let dataDia = dia.replaceAll('/', '')
 
-          const a = semana.filter(item => {
-            item.id != `${dataDia}.${item}`
-          })
+          const id_fornecFormat = id_fornec.toString().padStart(4, '0');
 
           try {
             num++;
-            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${item}`), {
+            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
               id_semana: num,
-              id_fornecedor: item,
+              id_fornecedor: id_fornec,
               id_caixa: null,
               data: dia,
               ativo: true,
@@ -128,7 +123,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
             });
             console.log("Document written with ID: ", docRef);
             salvou = true;
-            // toast.success('Dados salvos com sucesso!', { duration: 3000 })
 
           } catch (e) {
             console.error("Error adding document: ", e);
@@ -141,7 +135,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     });
 
     if (salvou) {
-      toast.success('Dados salvos com sucesso!', { duration: 3000 })
+      menssagem('Dados salvos com sucesso!', false);
     }
   }
 
