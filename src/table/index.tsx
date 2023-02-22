@@ -113,13 +113,13 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           try {
             num++;
             const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-              id_semana: num,
+              id_semana: `${dataDia}.${id_fornecFormat}`,
               id_fornecedor: id_fornec,
               id_caixa: null,
               data: dia,
               ativo: true,
               inserido_em: format(new Date(), "dd/MM/yyyy"),
-              alterado_em: null
+              status: ''
             });
             console.log("Document written with ID: ", docRef);
             salvou = true;
