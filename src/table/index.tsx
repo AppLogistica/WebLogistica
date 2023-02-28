@@ -117,7 +117,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
               id_fornecedor: id_fornec,
               id_caixa: null,
               data: dia,
-              ativo: true,
+              ativo: 'Inativos',
               inserido_em: format(new Date(), "dd/MM/yyyy"),
               status: ''
             });
