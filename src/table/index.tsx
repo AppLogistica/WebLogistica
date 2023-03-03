@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom';
 
@@ -14,14 +14,17 @@ export interface TableProps {
 }
 
 interface DadosSemana {
-  id_semana: [];
   [key: string]: number[];
+}
+
+interface salvos {
+  id_semana: string;
 }
 
 const Table: React.FC<TableProps> = ({ fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
-  const [dadosSemana, setDadosSemana] = useState<DadosSemana>({ id_semana: [] });
-  const [semana, setSemana] = useState<SemanaProps[]>([]);
+  const [dadosSemana, setDadosSemana] = useState<DadosSemana>({});
+  const semana: string[] = [];
   const navigate = useNavigate();
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
@@ -98,8 +101,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   };
 
   async function addSemana() {
-    let num: number = semana.length;
-    let salvou: boolean = true;
 
     Object.entries(dadosSemana).forEach(([dia, dados]) => {
 
@@ -110,47 +111,83 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
 
-          try {
-            num++;
-            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-              id_semana: `${dataDia}.${id_fornecFormat}`,
-              id_fornecedor: id_fornec,
-              id_caixa: null,
-              data: dia,
-              ativo: 'Inativos',
-              inserido_em: format(new Date(), "dd/MM/yyyy"),
-              status: ''
-            });
-            console.log("Document written with ID: ", docRef);
-            salvou = true;
+          console.log(`${dataDia}.${id_fornecFormat}`);
 
-          } catch (e) {
-            console.error("Error adding document: ", e);
-            toast.error('Erro ao salvar dados!', { duration: 3000 })
-            salvou = false;
-            return
+          const auxSemana = `${dataDia}.${id_fornecFormat}`;
+
+          semana.map(item => {
+            console.log('itenm', item);
+
+          })
+
+          const tem = semana.filter(item => item === auxSemana);
+
+          const docRef = doc(db, "semana", auxSemana);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+
+          } else {
+            // doc.data() will be undefined in this case
+            try {
+              const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
+                id_semana: `${dataDia}.${id_fornecFormat}`,
+                id_fornecedor: id_fornec,
+                id_caixa: null,
+                data: dia,
+                ativo: 'Inativos',
+                inserido_em: format(new Date(), "dd/MM/yyyy"),
+                status: ''
+              });
+              console.log("Document written with ID: ", docRef);
+              menssagem('Dados salvos com sucesso!', false);
+
+            } catch (e) {
+              console.error("Error adding document: ", e);
+              menssagem('Erro ao salvar!', true)
+              return
+            }
           }
         }
       })
     });
-
-    if (salvou) {
-      menssagem('Dados salvos com sucesso!', false);
-    }
   }
 
   useEffect(() => {
 
     async function carregaSemana() {
 
-      const querySnapshot = await getDocs(collection(db, "semana"));
+      const q = query(collection(db, "semana"));
+
+      const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        const { id_fornecedor, data, id_semana, id } = doc.data();
+        handleCheckboxChange(id_fornecedor, `${data}`, true);
 
-        handleCheckboxChange(doc.data().id_fornecedor, `${doc.data().data}`, true);
-
-        setSemana((semana) => [...semana, doc.data() as SemanaProps]);
+        if (!semana.includes(doc.id)) {
+          semana.push(doc.id);
+        }
 
       });
+
+
+      console.log(semana);
+
+
+      /*const querySnapshot = await getDocs(collection(db, "semana"));
+      querySnapshot.forEach((doc) => {
+
+        const { id_fornecedor, data } = doc.data();
+
+        handleCheckboxChange(id_fornecedor, `${data}`, true);
+
+        //  console.log(id_fornecedor, 'teste', data);
+
+
+        // semana.push( { id_fornecedor, data } as salvos);
+
+      });*/
 
     }
 

@@ -27,21 +27,9 @@ export interface FornecedorProps {
 
 export function Main() {
 
-  const [semana, setSemana] = useState<SemanaProps[]>([]);
   const [fornecedor, setFornecedor] = useState<FornecedorProps[]>([]);
 
   useEffect(() => {
-
-    function carregaSemana() {
-      const unsub = onSnapshot(collection(db, "semana"), (querySnapshot) => {
-        const data = querySnapshot.docs.map((doc) => doc.data() as SemanaProps);
-        setSemana(data);
-      });
-      // retorna uma função de limpeza para cancelar a inscrição
-      return () => {
-        unsub();
-      };
-    }
 
     function carregaFornecedor() {
       const unsub = onSnapshot(collection(db, "fornecedor"), (querySnapshot) => {
@@ -55,12 +43,10 @@ export function Main() {
       };
     }
 
-    carregaSemana();
     carregaFornecedor();
   }, []);
 
   const sortedData = [...fornecedor].sort((a, b) => a.id_fornecedor - b.id_fornecedor);
-  const sortedsemana = [...semana].sort((a, b) => a.id_semana - b.id_semana);
 
   return (
     <div className="App">
