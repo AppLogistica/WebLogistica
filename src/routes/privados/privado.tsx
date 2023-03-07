@@ -27,7 +27,7 @@ onAuthStateChanged(auth, (user) => {
 
 const a = true;
 
-return a ? children : <Navigate to={redirectTo} />;
-  //return JSON.parse(sessionStorage.getItem(`firebase:authUser:${auth.app.options.apiKey}:[DEFAULT]`)) ? children : <Navigate to={redirectTo} />;
+//return a ? children : <Navigate to={redirectTo} />;
+  return JSON.parse(sessionStorage.getItem(`firebase:authUser:${auth.app.options.apiKey}:[DEFAULT]`)) ? children : <Navigate to={redirectTo} />;
 };
 

@@ -2,7 +2,7 @@ import "./styles.css";
 
 import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
-import { collection, onSnapshot, where, query } from "firebase/firestore";
+import { collection, onSnapshot, where, query, getDocs} from "firebase/firestore";
 import db from '../../firebase/database';
 
 export interface SemanaProps {
@@ -31,29 +31,29 @@ export function Main() {
 
   useEffect(() => {
 
-    function carregaFornecedor() {
+    async function carregaFornecedor() {
+
+/*
       const unsub = onSnapshot(collection(db, "fornecedor"), (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as FornecedorProps);
         setFornecedor(data);
         // console.log(data)
       });
+*/
 
+      const q = query(collection(db, "fornecedor"), where("data", "==", true));
 
-      const q = query(collection(db, "fornecedor"));
-      const unsubscri = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "added") {
-           
-          }
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        console.log(doc.id, " => ", doc.data());
 
-          const source = snapshot.metadata.fromCache ? "local cache" : "server";
-          console.log("Data came from " + source);
-        });
+        setFornecedor(doc.data() as FornecedorProps[]);
       });
 
-      return () => {
+     /* return () => {
         unsub();
-      };
+      };*/
     }
 
     carregaFornecedor();
