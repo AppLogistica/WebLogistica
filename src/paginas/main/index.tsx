@@ -2,7 +2,7 @@ import "./styles.css";
 
 import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
-import { onSnapshot, collection } from "firebase/firestore";
+import { collection, onSnapshot, where, query } from "firebase/firestore";
 import db from '../../firebase/database';
 
 export interface SemanaProps {
@@ -37,7 +37,20 @@ export function Main() {
         setFornecedor(data);
         // console.log(data)
       });
-      // retorna uma função de limpeza para cancelar a inscrição
+
+
+      const q = query(collection(db, "fornecedor"));
+      const unsubscri = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "added") {
+           
+          }
+
+          const source = snapshot.metadata.fromCache ? "local cache" : "server";
+          console.log("Data came from " + source);
+        });
+      });
+
       return () => {
         unsub();
       };
