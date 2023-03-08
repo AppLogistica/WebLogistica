@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom';
 
@@ -33,10 +33,12 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const SemanaAnterior = () => {
     setSemanaAtual(subDays(semanaAtual, 8));
+
   };
 
   const SemanaSeguinte = () => {
     setSemanaAtual(addDays(semanaAtual, 8));
+   
   };
 
   const handleCheckboxChange = (
@@ -136,7 +138,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
                 id_caixa: null,
                 data: dia,
                 ativo: 'Inativos',
-                inserido_em: format(new Date(), "dd/MM/yyyy"),
+                inserido_em: format(semanaAtual, "dd/MM/yyyy"),
                 status: ''
               });
               console.log("Document written with ID: ", docRef);
@@ -153,43 +155,45 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     });
   }
 
+  async function carregaSemana() {
+
+
+
+    const q = query(collection(db, "semana"));
+
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      const { id_fornecedor, data, id_semana, id } = doc.data();
+      handleCheckboxChange(id_fornecedor, `${data}`, true);
+
+      if (!semana.includes(doc.id)) {
+        semana.push(doc.id);
+      }
+
+    });
+
+
+    console.log(semana);
+
+
+    /*const querySnapshot = await getDocs(collection(db, "semana"));
+    querySnapshot.forEach((doc) => {
+
+      const { id_fornecedor, data } = doc.data();
+
+      handleCheckboxChange(id_fornecedor, `${data}`, true);
+
+      //  console.log(id_fornecedor, 'teste', data);
+
+
+      // semana.push( { id_fornecedor, data } as salvos);
+
+    });*/
+
+  }
+
   useEffect(() => {
-
-    async function carregaSemana() {
-
-      const q = query(collection(db, "semana"));
-
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        // doc.data() is never undefined for query doc snapshots
-        const { id_fornecedor, data, id_semana, id } = doc.data();
-        handleCheckboxChange(id_fornecedor, `${data}`, true);
-
-        if (!semana.includes(doc.id)) {
-          semana.push(doc.id);
-        }
-
-      });
-
-
-      console.log(semana);
-
-
-      /*const querySnapshot = await getDocs(collection(db, "semana"));
-      querySnapshot.forEach((doc) => {
-
-        const { id_fornecedor, data } = doc.data();
-
-        handleCheckboxChange(id_fornecedor, `${data}`, true);
-
-        //  console.log(id_fornecedor, 'teste', data);
-
-
-        // semana.push( { id_fornecedor, data } as salvos);
-
-      });*/
-
-    }
 
     carregaSemana();
 
