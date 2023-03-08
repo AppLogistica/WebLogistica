@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
 import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom';
 
 import "./styles.css";
 import { FornecedorProps, SemanaProps } from "../paginas/main";
@@ -24,8 +23,10 @@ interface salvos {
 const Table: React.FC<TableProps> = ({ fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({});
+  const [dadosNovos, setDadosNovos] = useState<DadosSemana>({})
   const semana: string[] = [];
-  const navigate = useNavigate();
+
+  // const navigate = useNavigate();
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -38,13 +39,15 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const SemanaSeguinte = () => {
     setSemanaAtual(addDays(semanaAtual, 8));
-   
+
+    console.log(semana.length);
   };
 
   const handleCheckboxChange = (
     fornecedorId: number,
     data: string,
     checked: boolean,
+    novo: number
   ) => {
     setDadosSemana((prevState) => ({
       ...prevState,
@@ -52,6 +55,14 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         ? [...(prevState[data] || []), fornecedorId,]
         : prevState[data].filter((id) => id !== fornecedorId),
     }));
+    if(novo === 1){
+      setDadosNovos((prevState) => ({
+        ...prevState,
+        [data]: checked
+          ? [...(prevState[data] || []), fornecedorId,]
+          : prevState[data].filter((id) => id !== fornecedorId),
+      }))
+    }
   };
 
   const renderTableHeader = () => {
@@ -90,7 +101,8 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
                     handleCheckboxChange(
                       fornecedor.id_fornecedor,
                       format(day, "dd/MM/yyyy"),
-                      event.target.checked
+                      event.target.checked,
+                      1
                     )
                   }
                 />
@@ -104,7 +116,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   async function addSemana() {
 
-    Object.entries(dadosSemana).forEach(([dia, dados]) => {
+    console.log(dadosNovos);
+    return
+    Object.entries(dadosNovos).forEach(([dia, dados]) => {
 
       dados.map(async id_fornec => {
         if (dados.length > 0) {
@@ -117,11 +131,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
 
-          semana.map(item => {
-            console.log('itenm', item);
-
-          })
-
           const tem = semana.filter(item => item === auxSemana);
 
           const docRef = doc(db, "semana", auxSemana);
@@ -130,7 +139,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           if (docSnap.exists()) {
 
           } else {
-            // doc.data() will be undefined in this case
+
             try {
               const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
                 id_semana: `${dataDia}.${id_fornecFormat}`,
@@ -153,44 +162,24 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         }
       })
     });
+
   }
 
   async function carregaSemana() {
-
-
 
     const q = query(collection(db, "semana"));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
       // doc.data() is never undefined for query doc snapshots
-      const { id_fornecedor, data, id_semana, id } = doc.data();
-      handleCheckboxChange(id_fornecedor, `${data}`, true);
+      const { id_fornecedor, data } = doc.data();
+      handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
 
       if (!semana.includes(doc.id)) {
         semana.push(doc.id);
       }
 
     });
-
-
-    console.log(semana);
-
-
-    /*const querySnapshot = await getDocs(collection(db, "semana"));
-    querySnapshot.forEach((doc) => {
-
-      const { id_fornecedor, data } = doc.data();
-
-      handleCheckboxChange(id_fornecedor, `${data}`, true);
-
-      //  console.log(id_fornecedor, 'teste', data);
-
-
-      // semana.push( { id_fornecedor, data } as salvos);
-
-    });*/
-
   }
 
   useEffect(() => {
@@ -214,6 +203,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         {renderTableHeader()}
         {renderTableBody()}
       </table>
+
       <div className="caixaBotao">
         <button className="botaoConfirma" onClick={addSemana}>
           Confirmar
