@@ -117,7 +117,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   async function addSemana() {
 
     console.log(dadosNovos);
-    return
+    //return
     Object.entries(dadosNovos).forEach(([dia, dados]) => {
 
       dados.map(async id_fornec => {
@@ -155,13 +155,15 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
             } catch (e) {
               console.error("Error adding document: ", e);
-              menssagem('Erro ao salvar!', true)
+              menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
               return
             }
           }
         }
       })
     });
+
+    setDadosNovos({});
 
   }
 
