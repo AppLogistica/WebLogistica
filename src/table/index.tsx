@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import toast, { Toaster } from 'react-hot-toast'
+import {doc, getDoc} from "firebase/firestore";
+import  { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
-import { FornecedorProps, SemanaProps } from "../paginas/main";
+import { FornecedorProps } from "../paginas/main";
 import db from "../firebase/database";
 import { menssagem } from "../componentes/menssagem";
+import { supabase } from "../supabase/database";
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -25,8 +26,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({});
   const [dadosNovos, setDadosNovos] = useState<DadosSemana>({})
   const semana: string[] = [];
-
-  // const navigate = useNavigate();
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -55,7 +54,8 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         ? [...(prevState[data] || []), fornecedorId,]
         : prevState[data].filter((id) => id !== fornecedorId),
     }));
-    if(novo === 1){
+
+    if (novo === 1) {
       setDadosNovos((prevState) => ({
         ...prevState,
         [data]: checked
@@ -116,7 +116,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   async function addSemana() {
 
-    console.log(dadosNovos);
     //return
     Object.entries(dadosNovos).forEach(([dia, dados]) => {
 
@@ -129,28 +128,36 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
           console.log(`${dataDia}.${id_fornecFormat}`);
 
-          const auxSemana = `${dataDia}.${id_fornecFormat}`;
+          const id_semana = `${dataDia}.${id_fornecFormat}`;
 
-          const tem = semana.filter(item => item === auxSemana);
+          const { error } = await supabase.from('semana').select('*').match({id_semana});
 
-          const docRef = doc(db, "semana", auxSemana);
-          const docSnap = await getDoc(docRef);
+          const docRef = doc(db, "semana", id_semana);
 
-          if (docSnap.exists()) {
-
+          if (error) {
+            console.log(error);
+            
           } else {
 
             try {
-              const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-                id_semana: `${dataDia}.${id_fornecFormat}`,
-                id_fornecedor: id_fornec,
-                id_caixa: null,
-                data: dia,
-                ativo: 'Inativos',
-                inserido_em: format(semanaAtual, "dd/MM/yyyy"),
-                status: ''
-              });
-              console.log("Document written with ID: ", docRef);
+
+              const id_semana = `${dataDia}.${id_fornecFormat}`;
+              const id = `${dataDia}.${id_fornecFormat}`;
+              const id_fornecedor = id_fornec;
+              const data_ = dia;
+              const ativo = 'Inativos';
+              const inserido_em = format(semanaAtual, "dd/MM/yyyy");
+              const status = ''
+              const id_caixa = -1
+
+              const { data, error } = await supabase.from('semana').insert([{ id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_ }]);
+
+              if (error) {
+                console.log('Erro ao inserir registro:', error.message);
+              } else {
+                console.log('Registro inserido com sucesso:', data);
+              }
+
               menssagem('Dados salvos com sucesso!', false);
 
             } catch (e) {
@@ -167,26 +174,38 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   }
 
-  async function carregaSemana() {
-
-    const q = query(collection(db, "semana"));
-
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      const { id_fornecedor, data } = doc.data();
-      handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
-
-      if (!semana.includes(doc.id)) {
-        semana.push(doc.id);
-      }
-
-    });
-  }
-
   useEffect(() => {
 
-    carregaSemana();
+    async function getSemana() {
+
+      const { data, error } = await supabase.from('semana').select();
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      data.map((sema) => {
+        handleCheckboxChange(sema.id_fornecedor, `${sema.data_}`, true, 0);
+        if (!semana.includes(sema.id)) {
+          semana.push(sema.id);
+        }
+      })
+
+      const sem = data.map((semanal) => ({
+        ativo: semanal.ativo,
+        id_caixa: semanal.id_caixa ?? null,
+        id_fornecedor: semanal.id_fornecedor,
+        id_semana: semanal.id_semana,
+        inserido_em: semanal.inserido_em,
+        id: semanal.id,
+        data: semanal.data_
+      }));
+    }
+
+    getSemana();
+
+    // carregaSemana();
 
   }, []);
 
