@@ -47,7 +47,6 @@ export function Main() {
       }));
 
       setFornecedor(fornecedores);
-      console.log('set',fornecedores);
       
     }
 

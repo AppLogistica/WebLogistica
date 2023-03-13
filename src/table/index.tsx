@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import {doc, getDoc} from "firebase/firestore";
-import  { Toaster } from 'react-hot-toast'
+import { doc, getDoc } from "firebase/firestore";
+import { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
 import { FornecedorProps } from "../paginas/main";
 import db from "../firebase/database";
 import { menssagem } from "../componentes/menssagem";
 import { supabase } from "../supabase/database";
+import { async } from "@firebase/util";
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -39,7 +40,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const SemanaSeguinte = () => {
     setSemanaAtual(addDays(semanaAtual, 8));
 
-    console.log(semana.length);
   };
 
   const handleCheckboxChange = (
@@ -126,39 +126,37 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
 
-          console.log(`${dataDia}.${id_fornecFormat}`);
-
           const id_semana = `${dataDia}.${id_fornecFormat}`;
 
-          const { error } = await supabase.from('semana').select('*').match({id_semana});
+          const { error, data } = await supabase.from('semana').select('id_semana').match({ id_semana });
 
+          console.log('dados ', data);
+
+          //se tirar da merda
           const docRef = doc(db, "semana", id_semana);
 
-          if (error) {
+          if (data.length > 0) {
             console.log(error);
-            
+
           } else {
 
             try {
 
+              const [day, month, year] = dia.split('/');
+              const novaData = new Date(`${year}-${month}-${day}`);
+
               const id_semana = `${dataDia}.${id_fornecFormat}`;
               const id = `${dataDia}.${id_fornecFormat}`;
               const id_fornecedor = id_fornec;
-              const data_ = dia;
+              const data_ = novaData;
               const ativo = 'Inativos';
-              const inserido_em = format(semanaAtual, "dd/MM/yyyy");
+              const inserido_em = new Date();
               const status = ''
               const id_caixa = -1
 
-              const { data, error } = await supabase.from('semana').insert([{ id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_ }]);
-
-              if (error) {
-                console.log('Erro ao inserir registro:', error.message);
-              } else {
-                console.log('Registro inserido com sucesso:', data);
-              }
-
-              menssagem('Dados salvos com sucesso!', false);
+              setTimeout(() => {
+                InsereSemana(id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_);
+              }, 100);
 
             } catch (e) {
               console.error("Error adding document: ", e);
@@ -170,15 +168,38 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
       })
     });
 
-    setDadosNovos({});
+    //setDadosNovos({});
 
+  }
+
+  async function InsereSemana(id_semana: string, id: string, id_fornecedor: number, id_caixa: number, inserido_em: Date, ativo: string, status: string, data_: Date) {
+
+    const { data, error } = await supabase.from('semana').insert([{ id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_ }]);
+
+    if (error) {
+      console.log('Erro ao inserir registro:', error.message);
+      menssagem(`Erro ao salvar! \n ${data_}.${id_fornecedor} \n ${error.message}`, true)
+    } else {
+      menssagem('Dados salvos com sucesso!', false);;
+    }
   }
 
   useEffect(() => {
 
     async function getSemana() {
 
-      const { data, error } = await supabase.from('semana').select();
+      console.log('atual',format(semanaAtual, 'dd/MM/yyyy').replaceAll('/', '-').split("-").reverse().join("-"));
+      console.log('ultimo',format(addDays(semanaAtual, 8), 'dd/MM/yyyy').replaceAll('/', '-').split("-").reverse().join("-"));
+      
+      
+
+      const { data, error } = await supabase
+        .from('semana')
+        .select()
+        .gte('data_', format(semanaAtual, 'dd/MM/yyyy').replaceAll('/', '-').split("-").reverse().join("-"))
+        .lte('data_', format(addDays(semanaAtual, 7), 'dd/MM/yyyy').replaceAll('/', '-').split("-").reverse().join("-"))
+
+      console.log(data);
 
       if (error) {
         console.log(error);
@@ -186,9 +207,14 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
       }
 
       data.map((sema) => {
-        handleCheckboxChange(sema.id_fornecedor, `${sema.data_}`, true, 0);
+
+        const novaData = `${sema.data_}`.replaceAll('-', '/').split("/").reverse().join("/");
+
+        handleCheckboxChange(sema.id_fornecedor, novaData, true, 0);
+
         if (!semana.includes(sema.id)) {
           semana.push(sema.id);
+
         }
       })
 
@@ -201,13 +227,13 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         id: semanal.id,
         data: semanal.data_
       }));
+
+
     }
 
     getSemana();
 
-    // carregaSemana();
-
-  }, []);
+  }, [semanaAtual]);
 
   return (
     <>
