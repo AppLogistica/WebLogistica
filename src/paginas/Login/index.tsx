@@ -45,9 +45,7 @@ export function Login() {
           if (!email || !password) {
             console.log(erro.code);
           }
-
         }
-
       })
   }
 

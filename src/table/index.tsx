@@ -151,11 +151,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
               const data_ = novaData;
               const ativo = 'Inativos';
               const inserido_em = new Date();
-              const status = ''
-              const id_caixa = -1
 
               setTimeout(() => {
-                InsereSemana(id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_);
+                InsereSemana(id_semana, id, id_fornecedor, inserido_em, ativo, data_);
               }, 100);
 
             } catch (e) {
@@ -172,9 +170,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   }
 
-  async function InsereSemana(id_semana: string, id: string, id_fornecedor: number, id_caixa: number, inserido_em: Date, ativo: string, status: string, data_: Date) {
+  async function InsereSemana(id_semana: string, id: string, id_fornecedor: number, inserido_em: Date, ativo: string, data_: Date) {
 
-    const { data, error } = await supabase.from('semana').insert([{ id_semana, id, id_fornecedor, id_caixa, inserido_em, ativo, status, data_ }]);
+    const { data, error } = await supabase.from('semana').insert([{ id_semana, id, id_fornecedor, inserido_em, ativo, data_ }]);
 
     if (error) {
       console.log('Erro ao inserir registro:', error.message);
