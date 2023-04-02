@@ -30,6 +30,12 @@ input[type="checkbox"] {
   display: block;
 }
 
+.aqui {
+  background: #8f7cec;
+  color: aqua;
+  background-color: #8f7cec;
+}
+
 .topTable{
 
   display: flex;
@@ -57,8 +63,6 @@ button {
   transition: .3s;
   letter-spacing: 4px;
   border: 1px solid #8f7cec;
-
-
 }
 
 button:hover{
@@ -74,6 +78,13 @@ button:active{
   font-weight: bold;
   color: white;
   margin-top: 1.2rem;
+}
+
+.botaoEdita {
+  background-color: rgb(250, 255, 0);
+  font-weight: bold;
+  color: #242424;
+  margin-left: 5rem;
 }
 
 .botaoConfirma:hover {

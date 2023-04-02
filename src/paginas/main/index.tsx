@@ -2,10 +2,13 @@ import "./styles.css";
 
 import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
-import { supabase } from "../../supabase/database";
+import { collection, onSnapshot, where, query, getDocs } from "firebase/firestore";
+import db from '../../firebase/database';
+import { format, addDays, subDays } from "date-fns";
 
 export interface SemanaProps {
   ativo: boolean;
+  alterado_em: Date;
   data: Date;
   id_caixa: null | number;
   id_fornecedor: number;
@@ -29,29 +32,19 @@ export function Main() {
 
   useEffect(() => {
 
-    async function getFornecedor() {
-      const { data, error } = await supabase.from('fornecedor').select();
+    async function carregaFornecedor() {
 
-      if (error) {
-        console.log(error);
-        return;
-      }
+      const unsub = onSnapshot(collection(db, "fornecedor"), (querySnapshot) => {
+        const data = querySnapshot.docs.map((doc) => doc.data() as FornecedorProps);
+        setFornecedor(data);
+      });
 
-      const fornecedores = data.map((fornecedor) => ({
-        id: fornecedor.id_fornecedor.toString(),
-        cnpj: fornecedor.cnpj,
-        email: fornecedor.email ?? null,
-        id_endereco: fornecedor.id_endereco,
-        id_fornecedor: fornecedor.id_fornecedor,
-        nome: fornecedor.nome,
-      }));
-
-      setFornecedor(fornecedores);
-      
+      return () => {
+        unsub();
+      };
     }
 
-    getFornecedor()
-
+    carregaFornecedor();
   }, []);
 
   const sortedData = [...fornecedor].sort((a, b) => a.id_fornecedor - b.id_fornecedor);

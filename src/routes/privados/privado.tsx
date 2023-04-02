@@ -1,5 +1,7 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, setPersistence } from "firebase/auth";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useSession } from "../../context/SessionContext";
 
 // @ts-ignore
 export const PrivateRoute = ({ children, redirectTo }) => {

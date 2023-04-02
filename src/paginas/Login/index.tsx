@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles.css';
 import { Toaster } from 'react-hot-toast'
 import { useAuth } from '../../context/AuthContext';
 
 import { menssagem } from '../../componentes/menssagem';
-import { supabase } from '../../supabase/database';
 
 export function Login() {
   const navigate = useNavigate();
@@ -18,14 +17,7 @@ export function Login() {
   function handleSignInResetPass() {
 
     signIn(email, password)
-      .then(async (res) => {
-        // see full api reference here: /docs/reference/javascript/auth-signup
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: 'mb-nascimento@hotmail.com',
-          password: '123456',
-        })
-
-        console.log('logado?', await (await supabase.auth.getSession()).data)
+      .then((res) => {
         navigate('/main');
       })
       .catch((erro) => {
@@ -45,7 +37,9 @@ export function Login() {
           if (!email || !password) {
             console.log(erro.code);
           }
+
         }
+
       })
   }
 
