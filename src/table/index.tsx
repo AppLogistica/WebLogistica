@@ -218,9 +218,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
       const { id_fornecedor, data } = doc.data();
       handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
 
-      if (!semana.includes(doc.id)) {
+   /*   if (!semana.includes(doc.id)) {
         semana.push(doc.id);
-      }
+      }*/
 
     });
   }

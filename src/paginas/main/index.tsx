@@ -5,6 +5,7 @@ import Table, { TableProps } from '../../table'
 import { collection, onSnapshot, where, query, getDocs } from "firebase/firestore";
 import db from '../../firebase/database';
 import { format, addDays, subDays } from "date-fns";
+import CadastroFornecedor from "../../componentes/cadastros/Fornecedor/CadFornec";
 
 export interface SemanaProps {
   ativo: boolean;
@@ -57,3 +58,10 @@ export function Main() {
     </div>
   )
 }
+
+//<CadastroFornecedor />
+/*
+ <Table
+        fornec={sortedData}
+      />
+      */
