@@ -5,9 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { FornecedorProps } from '../../../paginas/main';
 import { menssagem } from '../../menssagem';
-
-
-
+//import { auth as adminAuth } from "firebase-admin"
 const CadastroFornecedor = () => {
   const [fornecedores, setFornecedores] = useState<FornecedorProps[]>([]);
   const [nome, setNome] = useState('');
@@ -143,7 +141,6 @@ const CadastroFornecedor = () => {
       const confirmarExclusao = window.confirm('Tem certeza que deseja excluir este fornecedor?');
 
       if (confirmarExclusao) {
-
         try {
           await deleteDoc(doc(db, 'fornecedor', codigo));
           //   menssagem('Dados salvos com sucesso!', false);
@@ -183,17 +180,19 @@ const CadastroFornecedor = () => {
           <label htmlFor="email">Email</label>
           <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} />
 
-          <div className='botoes'>
+          <div className='botoesFornec'>
             <button type="submit">Cadastrar</button>
             <button onClick={excluir} style={{ background: '#9c2c2c', color: 'white' }}>Excluir</button>
           </div>
 
-          <button type="button" onClick={() => {
-            setNome('');
-            setCnpj('');
-            setEmail('');
-            setCodigo('');
-          }}>Novo</button>
+          <button className='botoesEmail'
+            type="button" onClick={() => {
+              document.getElementById("codigo").focus();
+              setNome('');
+              setCnpj('');
+              setEmail('');
+              setCodigo('');
+            }}>Novo</button>
         </form>
       </div>
     </>

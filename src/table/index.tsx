@@ -265,12 +265,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         {renderTableBody()}
       </table>
 
-      <div className="caixaBotao">
-        <button className="botaoConfirma" onClick={addSemana}>
+        <button className="botaoConfirma" onClick={addSemana} style={{alignSelf: "flex-start"}}>
           Confirmar
         </button>
-      </div>
-
     </>
   );
 };

@@ -6,6 +6,7 @@ import { collection, onSnapshot, where, query, getDocs } from "firebase/firestor
 import db from '../../firebase/database';
 import { format, addDays, subDays } from "date-fns";
 import CadastroFornecedor from "../../componentes/cadastros/Fornecedor/CadFornec";
+import CadastroEmail from "../../componentes/cadastros/Email/cadEmail";
 
 export interface SemanaProps {
   ativo: boolean;
@@ -51,17 +52,10 @@ export function Main() {
   const sortedData = [...fornecedor].sort((a, b) => a.id_fornecedor - b.id_fornecedor);
 
   return (
-    <div className="App">
+    <div className="App" style={{backgroundColor: "#242424"}}>
       <Table
         fornec={sortedData}
       />
     </div>
   )
 }
-
-//<CadastroFornecedor />
-/*
- <Table
-        fornec={sortedData}
-      />
-      */
