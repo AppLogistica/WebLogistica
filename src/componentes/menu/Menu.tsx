@@ -1,7 +1,7 @@
 export function Menu() {
 
     return (
-        <div className="menu" style={{ marginBottom: "2rem", backgroundColor: "#242424", display: "flex", justifyContent: "space-evenly" }}>
+        <div className="menu" style={{ marginBottom: "2rem", backgroundColor: "#242424", display: "flex", justifyContent: "space-evenly", margin: "0 0 60px 0"}}>
             <a href="/main"
                 style={{
                     textDecoration: "none",
@@ -64,21 +64,23 @@ export function Menu() {
                     borderRadius: "8px"
                 }}>Caixa</div> </a>
 
-            <a href="/local"
-                style={{
-                    textDecoration: "none",
-                    textAlign: "center"
-                }}>
-                <div style={{
-                    backgroundColor: 'white',
-                    width: "140%",
-                    height: "140%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: "8px"
-                }}>Local</div> </a>
         </div>
 
     )
 }
+
+/*
+<a href="/local"
+style={{
+    textDecoration: "none",
+    textAlign: "center"
+}}>
+<div style={{
+    backgroundColor: 'white',
+    width: "140%",
+    height: "140%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: "8px"
+}}>Local</div> </a>*/

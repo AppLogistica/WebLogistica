@@ -12,6 +12,7 @@ const CadastroFornecedor = () => {
   const [cnpj, setCnpj] = useState('');
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
+  const [cidade, setCidade] = useState('');
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -44,20 +45,7 @@ const CadastroFornecedor = () => {
       document.getElementById("nome").focus();
       menssagem("O campo 'Nome' é obrigatório", true);
       return
-    } else if (!cnpj) {
-      document.getElementById("cnpj").focus();
-      menssagem("O campo 'CNPJ' é obrigatório", true);
-      return
-    } else if (cnpj) {
-      sortedData.map(item => {
-        if (item.cnpj === cnpj) {
-          temCNPJ = true;
-        }
-        if (`${item.id_fornecedor}` === codigo) {
-          temId = true;
-        }
-      })
-    }
+    } 
 
     if (temId) {
       const confirmarUpdate = window.confirm('Esse fornecedor ja existe, continuar irá atualizar o registro. \n Deseja continuar?');
@@ -65,22 +53,13 @@ const CadastroFornecedor = () => {
       if (!confirmarUpdate) {
         return;
       }
-    } else {
-      if (temCNPJ) {
-        menssagem("CNPJ já cadastrado", true);
-        document.getElementById("cnpj").focus();
-        return;
-      }
     }
 
     try {
       const docRef = await setDoc(doc(db, "fornecedor", `${codigo}`), {
-        id_fornecdor: codigo,
         id_fornecedor: codigo,
-        nome: nome,
-        cnpj: cnpj,
-        email: email,
-        id_endereco: 1
+        nome: nome.toUpperCase(),
+        cidade: cidade.toUpperCase()
       });
       menssagem('Dados salvos com sucesso!', false)
       console.log("Document written with ID: ", docRef);
@@ -98,9 +77,11 @@ const CadastroFornecedor = () => {
 
     setSelectedRow(fornec.id_fornecedor);
     setNome(fornec.nome);
-    setCnpj(fornec.cnpj);
-    setEmail(fornec.email !== null ? fornec.email : "");
+    // setCnpj(fornec.cnpj);
+    // setEmail(fornec.email !== null ? fornec.email : "");
     setCodigo(`${fornec.id_fornecedor}`);
+ 
+    setCidade(fornec.cidade !== undefined ? fornec.cidade : "")
   }
 
   const num = selectedRow;
@@ -113,8 +94,7 @@ const CadastroFornecedor = () => {
           <tr>
             <th id='thFornec'>Código</th>
             <th>Nome</th>
-            <th>CNPJ</th>
-            <th>Email</th>
+            <th>Cidade</th>
           </tr>
         </thead>
         <tbody className='body'>
@@ -124,8 +104,7 @@ const CadastroFornecedor = () => {
 
               <td>{fornecedor.id_fornecedor}</td>
               <td>{fornecedor.nome}</td>
-              <td>{fornecedor.cnpj}</td>
-              <td>{fornecedor.email}</td>
+              <td>{fornecedor.cidade}</td>
             </tr>
           ))}
         </tbody>
@@ -148,6 +127,7 @@ const CadastroFornecedor = () => {
           setNome("");
           setCnpj("");
           setEmail("");
+          setCidade("");
           setSelectedRow(null);
           menssagem('Dados excluidos com sucesso!', false);
         } catch (error) {
@@ -169,16 +149,13 @@ const CadastroFornecedor = () => {
 
         <div className='divide'></div>
         <form className='formu' onSubmit={handleSubmit}>
-          <label htmlFor="codigo">Código do Fornecedor</label>
+          <label htmlFor="codigo">Código</label>
           <input type="text" id="codigo" value={codigo} onChange={e => setCodigo(e.target.value)} />
           <label htmlFor="nome">Nome</label>
-          <input type="text" id="nome" value={nome} onChange={e => setNome(e.target.value)} />
+          <input type="text" id="nome" value={nome.toUpperCase()} onChange={e => setNome(e.target.value)} />
 
-          <label htmlFor="cnpj">CNPJ</label>
-          <input type="text" id="cnpj" value={cnpj} onChange={e => setCnpj(e.target.value)} />
-
-          <label htmlFor="email">Email</label>
-          <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} />
+          <label htmlFor="cnpj">Cidade</label>
+          <input type="text" id="cnpj" value={cidade.toUpperCase()} onChange={e => setCidade(e.target.value)} />
 
           <div className='botoesFornec'>
             <button type="submit">Cadastrar</button>
@@ -192,6 +169,7 @@ const CadastroFornecedor = () => {
               setCnpj('');
               setEmail('');
               setCodigo('');
+              setCidade('');
             }}>Novo</button>
         </form>
       </div>

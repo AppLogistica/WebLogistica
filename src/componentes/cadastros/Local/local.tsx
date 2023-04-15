@@ -64,13 +64,12 @@ const CadLocal = () => {
       menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
       return
     }
-
   };
 
   const handleTableRowClick = (loc: propLocal) => {
 
     setSelectedRow(parseInt(loc.id));
-    setNome(`${loc.nome}`);
+    setNome(loc.nome.toUpperCase());
     setCodigo(loc.id)
   }
 
@@ -141,7 +140,7 @@ const CadLocal = () => {
           <input type="text" id="nome" value={codigo} onChange={e => setCodigo(e.target.value)} />
 
           <label htmlFor="cnpj">Nome</label>
-          <input type="text" id="nome" value={nome} onChange={e => setNome(e.target.value)} />
+          <input type="text" id="nome" value={nome.toUpperCase()} onChange={e => setNome(e.target.value)} />
 
           <div className='botoesFornec'>
             <button type="submit">Cadastrar</button>

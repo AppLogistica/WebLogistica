@@ -21,11 +21,12 @@ export interface SemanaProps {
 
 export interface FornecedorProps {
   id: string;
-  cnpj: string;
-  email: string | null;
-  id_endereco: number;
+  //cnpj: string;
+  //email: string | null;
+  //id_endereco: number;
   id_fornecedor: number;
   nome: string;
+  cidade: string;
 }
 
 export function Main() {

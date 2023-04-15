@@ -123,7 +123,9 @@ const CadCaixa = () => {
 
       if (confirmarExclusao) {
         try {
-          await deleteDoc(doc(db, 'fornecedor', codigo));
+          console.log(codigo);
+          
+          await deleteDoc(doc(db, 'caixa', codigo));
           //   menssagem('Dados salvos com sucesso!', false);
           setCodigo("");
           setNome("");
@@ -148,7 +150,7 @@ const CadCaixa = () => {
     }
   
     return (
-      <select value={selectedOption} onChange={handleOptionChange} style={{width: "80%", alignSelf: "center"}}>
+      <select value={selectedOption} onChange={handleOptionChange} style={{width: "89%", height: "30px", alignSelf: "center"}}>
         <option value="sim">Sim</option>
         <option value="Não">Não</option>
       </select>
@@ -167,7 +169,7 @@ const CadCaixa = () => {
           <label htmlFor="nome">Caixa</label>
           <input type="text" id="nome" value={nome} onChange={e => setNome(e.target.value)} />
 
-          <label htmlFor="cnpj">Livre</label>
+          <label htmlFor="livre">Livre</label>
           <ComboBox />
 
           <div className='botoesFornec'>

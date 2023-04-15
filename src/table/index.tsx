@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
@@ -46,6 +46,22 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     console.log(semana.length);
   };
 
+  async function ConfirmaExcluir(auxSemana: string) {
+
+    const docRef = doc(db, "semana", auxSemana);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.data().ativo !== "Inativos") {
+      const resp = window.confirm(`Esse procesos encontra-se ${docSnap.data().ativo.toUpperCase()}, deseja realmente excluir? \n
+Excluir esse item irá excluir todos os procesos ligados a ele! \n
+A exclusão só será executada quando for confirmado as alterações através do botão "verde" (confirmar)`);
+
+      if (!resp) {
+        window.location.reload();
+      }
+    }
+  }
+
   const handleCheckboxChange = (
     fornecedorId: number,
     data: string,
@@ -71,9 +87,17 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     }
 
     if (clique === 1) {
-      //alert(`${excluir}`)
-      if (!excluir) {
-        alert(`${excluir}`)
+
+      let dataDia = data.replaceAll('/', '')
+
+      const id_fornecFormat = fornecedorId.toString().padStart(4, '0');
+
+      const auxSemana = `${dataDia}.${id_fornecFormat}`;
+
+      if (!checked) {
+
+        console.log(ConfirmaExcluir(auxSemana))
+
       }
 
       setExcluir((prevState) => ({
@@ -83,7 +107,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           : [...(prevState[data] || []), fornecedorId,]
       }));
     }
-
   };
 
   const renderTableHeader = () => {
@@ -140,8 +163,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
     Object.entries(excluir).forEach(([dia, dados]) => {
 
-
-
       if (dados.length > 0) {
         dados.map(async id_fornec => {
 
@@ -151,9 +172,46 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
 
+          const docRef = doc(db, "semana", auxSemana);
+          const docSnap = await getDoc(docRef);
+
+          const idcaixa = docSnap.data().id_caixa;
+          const idsemana = docSnap.data().id_semana;
+
           try {
+
+            if (idcaixa) {
+
+              try {
+                const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
+                  Latitude: null,
+                  Longitude: null,
+                  id_local: 1,
+                  id_status: 1,
+                  livre: true,
+                  nome: idcaixa
+
+                });
+                console.log("Document written with ID: ", docRef);
+
+
+              } catch (e) {
+                console.error("Error adding document: ", e);
+                return
+              }
+            }
+
+            const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async (documento) => {
+              // doc.data() is never undefined for query doc snapshots
+              // alert(documento.id);
+              await deleteDoc(doc(db, 'historicoStatus', documento.id));
+            });
+
             await deleteDoc(doc(db, 'semana', auxSemana));
-            //   menssagem('Dados salvos com sucesso!', false);
+
           } catch (error) {
             menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
           }
@@ -214,13 +272,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
+
       const { id_fornecedor, data } = doc.data();
       handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
-
-   /*   if (!semana.includes(doc.id)) {
-        semana.push(doc.id);
-      }*/
 
     });
   }
@@ -265,9 +319,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
         {renderTableBody()}
       </table>
 
-        <button className="botaoConfirma" onClick={addSemana} style={{alignSelf: "flex-start"}}>
-          Confirmar
-        </button>
+      <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
+        Confirmar
+      </button>
     </>
   );
 };
