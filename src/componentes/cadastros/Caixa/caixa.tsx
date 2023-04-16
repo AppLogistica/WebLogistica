@@ -27,7 +27,7 @@ const CadCaixa = () => {
 
   useEffect(() => {
 
-    async function carregaFornecedor() {
+    async function carregaCaixa() {
 
       const unsub = onSnapshot(collection(db, "caixa"), (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as propCaixa);
@@ -39,22 +39,53 @@ const CadCaixa = () => {
       };
     }
 
-    carregaFornecedor();
+    carregaCaixa();
   }, [])
 
   const sortedData = [...caixas].sort((a, b) => a.nome - b.nome);
-  let temCNPJ = false;
-  let temId = false;
+
   async function handleSubmit() {
     event.preventDefault();
     if (!nome) {
       document.getElementById("codigo").focus();
       menssagem("O campo 'Caixa' é obrigatório", true);
       return;
-    } 
+    }
 
-    console.log(selectedOption);
-    
+    const semanaRef = collection(db, "semana");
+    const q = query(semanaRef, where("status", "!=", ""));
+
+    // const q = query(collection(db, "semana"), where("ativo", "==", 'Iniciado'));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      let count = 0
+      if (selectedOption === 'sim') {
+        querySnapshot.forEach(async (documento) => {
+
+          if (`${documento.data().id_caixa}` === codigo) {
+            count = 1;
+            window.confirm(`Esse Essa caixa está em uso no processo ${documento.data().id_semana}?\n
+  Fornecedor: ${`${documento.data().id_fornecedor}`.padStart(2, '0')}
+  Data: ${documento.data().data}
+  Finalize esse processo no app primeiro ou exclua na aba inicio do web`);
+          }
+        });
+
+        if(count === 0) {
+          salvaCaixa()
+        }
+
+      } else {
+        salvaCaixa()
+      }
+    } else {
+
+      salvaCaixa()
+    }
+  };
+
+  async function salvaCaixa() {
     try {
       const docRef = await setDoc(doc(db, "caixa", nome), {
         Latitude: null,
@@ -74,8 +105,7 @@ const CadCaixa = () => {
       menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
       return
     }
-
-  };
+  }
 
   const handleTableRowClick = (cai: propCaixa) => {
 
@@ -104,7 +134,7 @@ const CadCaixa = () => {
             <tr key={index} onClick={() => handleTableRowClick(caixa)}
               style={{ backgroundColor: `${caixa.nome}` === codigo ? '#363636' : '' }}>
 
-              <td>{`${caixa.nome}`.padStart(2,"0")}</td>
+              <td>{`${caixa.nome}`.padStart(2, "0")}</td>
               <td>{caixa.livre ? "Sim" : "Não"}</td>
 
             </tr>
@@ -124,7 +154,7 @@ const CadCaixa = () => {
       if (confirmarExclusao) {
         try {
           console.log(codigo);
-          
+
           await deleteDoc(doc(db, 'caixa', codigo));
           //   menssagem('Dados salvos com sucesso!', false);
           setCodigo("");
@@ -144,13 +174,13 @@ const CadCaixa = () => {
   }
 
   function ComboBox() {
-   
+
     const handleOptionChange = (event) => {
       setSelectedOption(event.target.value);
     }
-  
+
     return (
-      <select value={selectedOption} onChange={handleOptionChange} style={{width: "89%", height: "30px", alignSelf: "center"}}>
+      <select value={selectedOption} onChange={handleOptionChange} style={{ width: "89%", height: "30px", alignSelf: "center" }}>
         <option value="sim">Sim</option>
         <option value="Não">Não</option>
       </select>
