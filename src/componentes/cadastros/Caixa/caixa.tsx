@@ -86,14 +86,16 @@ const CadCaixa = () => {
   };
 
   async function salvaCaixa() {
+    let Nnome = parseInt(nome);
     try {
-      const docRef = await setDoc(doc(db, "caixa", nome), {
+   
+      const docRef = await setDoc(doc(db, "caixa", `${Nnome}`), {
         Latitude: null,
         Longitude: null,
         id_local: 1,
         id_status: 1,
         livre: selectedOption === "sim" ? true : false,
-        nome: nome
+        nome: Nnome
 
       });
       menssagem('Dados salvos com sucesso!', false)

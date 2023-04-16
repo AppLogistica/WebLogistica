@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
