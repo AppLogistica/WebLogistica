@@ -52,7 +52,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.data().ativo !== "Inativos") {
-      const resp = window.confirm(`Esse procesos encontra-se ${docSnap.data().ativo.toUpperCase()}, deseja realmente excluir? \n
+      const resp = window.confirm(`Esse proceso encontra-se ${docSnap.data().ativo.toUpperCase()}, deseja realmente excluir? \n
 Excluir esse item irá excluir todos os procesos ligados a ele! \n
 A exclusão só será executada quando for confirmado as alterações através do botão "verde" (confirmar)`);
 
