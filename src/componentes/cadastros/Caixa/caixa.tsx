@@ -88,13 +88,13 @@ const CadCaixa = () => {
   async function salvaCaixa() {
     let Nnome = parseInt(nome);
     try {
-   
+ 
       const docRef = await setDoc(doc(db, "caixa", `${Nnome}`), {
         Latitude: null,
         Longitude: null,
         id_local: 1,
         id_status: 1,
-        livre: selectedOption === "sim" ? true : false,
+        livre: selectedOption.toLocaleLowerCase() === "sim" ? true : false,
         nome: Nnome
 
       });
