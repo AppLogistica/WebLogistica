@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { format, addDays, subDays } from "date-fns";
+import { format as formatFns, addDays, subDays } from "date-fns";
 import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -7,6 +7,9 @@ import "./styles.css";
 import { FornecedorProps, SemanaProps } from "../paginas/main";
 import db from "../firebase/database";
 import { menssagem } from "../componentes/menssagem";
+
+import dayjs from 'dayjs';
+import 'dayjs/locale/pt-br';
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -28,6 +31,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [excluir, setExcluir] = useState<DadosSemana>({})
   const [editando, setEditando] = useState(false)
   const semana: string[] = [];
+  const [diaFormat, setDiaFormat] = useState(dayjs().locale('pt-br'));
 
   // const navigate = useNavigate();
 
@@ -116,8 +120,13 @@ A exclusão só será executada quando for confirmado as alterações através d
           <th>Código</th>
           <th>Fornecedor</th>
           {DiasSemana.map((day) => (
-            <th key={format(day, "dd/MM/yyyy")}>
-              {format(day, "dd/MM/yyyy")}{" "}
+            <th key={formatFns(day, "dd/MM/yyyy")}>
+
+              <div>
+              {dayjs(day).locale('pt-br').format('dddd')}
+              </div>
+              {formatFns(day, "dd/MM/yyyy")}
+
             </th>
           ))}
         </tr>
@@ -133,19 +142,19 @@ A exclusão só será executada quando for confirmado as alterações através d
             <td>{fornecedor.id_fornecedor}</td>
             <td>{fornecedor.nome}</td>
             {DiasSemana.map((day) => (
-              <td key={format(day, "dd/MM/yyyy")}>
+              <td key={formatFns(day, "dd/MM/yyyy")}>
                 <input
                   style={{ color: '#FFFF00' }}
                   type="checkbox"
                   checked={
-                    (dadosSemana[format(day, "dd/MM/yyyy")] || []).indexOf(
+                    (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
                       fornecedor.id_fornecedor
                     ) > -1
                   }
                   onChange={(event) =>
                     handleCheckboxChange(
                       fornecedor.id_fornecedor,
-                      format(day, "dd/MM/yyyy"),
+                      formatFns(day, "dd/MM/yyyy"),
                       event.target.checked,
                       1
                     )
@@ -243,7 +252,7 @@ A exclusão só será executada quando for confirmado as alterações através d
                 id_caixa: null,
                 data: dia,
                 ativo: 'Inativos',
-                inserido_em: format(semanaAtual, "dd/MM/yyyy"),
+                inserido_em: formatFns(semanaAtual, "dd/MM/yyyy"),
                 status: ''
               });
               console.log("Document written with ID: ", docRef);
@@ -268,7 +277,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
 
     const semanaRef = collection(db, "semana");
-    const q = query(semanaRef, where('data', '>=', format(semanaAtual, "dd/MM/yyyy")));
+    const q = query(semanaRef, where('data', '>=', formatFns(semanaAtual, "dd/MM/yyyy")));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
@@ -286,12 +295,12 @@ A exclusão só será executada quando for confirmado as alterações através d
 
       setDadosNovos((prevState) => ({
         ...prevState,
-        [format(aux, "dd/MM/yyyy")]: [...(prevState[format(aux, "dd/MM/yyyy")] || [])]
+        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
       }));
 
       setExcluir((prevState) => ({
         ...prevState,
-        [format(aux, "dd/MM/yyyy")]: [...(prevState[format(aux, "dd/MM/yyyy")] || [])]
+        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
       }));
     }
   }
@@ -310,7 +319,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
         <button onClick={SemanaAnterior}>Semana Anterior</button>
 
-        <span >{format(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
+        <span >{formatFns(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
         <button onClick={SemanaSeguinte}>Próxima Semana</button>
       </div>
 
