@@ -23,6 +23,12 @@ interface salvos {
   id_semana: string;
 }
 
+interface semanaProps {
+id_semana: string;
+pronto: boolean;
+status: string;
+}
+
 const Table: React.FC<TableProps> = ({ fornec }) => {
   const [semanaAtual, setSemanaAtual] = useState(new Date());
   const [semanaAtualAux, setSemanaAtualAux] = useState(new Date())
@@ -32,6 +38,10 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [editando, setEditando] = useState(false)
   const semana: string[] = [];
   const [diaFormat, setDiaFormat] = useState(dayjs().locale('pt-br'));
+  const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [pronto, setPronto] = useState([]);
+  
 
   // const navigate = useNavigate();
 
@@ -123,7 +133,7 @@ A exclusão só será executada quando for confirmado as alterações através d
             <th key={formatFns(day, "dd/MM/yyyy")}>
 
               <div>
-              {dayjs(day).locale('pt-br').format('dddd')}
+                {dayjs(day).locale('pt-br').format('dddd')}
               </div>
               {formatFns(day, "dd/MM/yyyy")}
 
@@ -134,6 +144,37 @@ A exclusão só será executada quando for confirmado as alterações através d
     );
   };
 
+  const [semanaSel, setSemanaSel] = useState('');
+
+  function handleContextMenu(event, semanaDay: string) {
+    event.preventDefault();
+    setShowMenu(true);
+    setMenuPosition({ x: event.clientX, y: event.clientY });
+    setSemanaSel(semanaDay);
+  }
+
+  function hideMenu() {
+    setShowMenu(false);
+  }
+
+  async function inicial(confirma: boolean) {
+    //   alert(semanaSel + '  ' + confirma)
+  }
+
+  function statusInicial(semanaStatus: string) {
+
+    (async () => {
+      const docRef = doc(db, "semana", semanaStatus);
+      const docSnap = await getDoc(docRef);
+
+      const idcaixa = docSnap.data().id_caixa;
+      const idsemana = docSnap.data().id_semana;
+    })
+
+    const a = 'red'
+    return a;
+  }
+
   const renderTableBody = () => {
     return (
       <tbody className="topoTabela">
@@ -143,23 +184,42 @@ A exclusão só será executada quando for confirmado as alterações através d
             <td>{fornecedor.nome}</td>
             {DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
-                <input
-                  style={{ color: '#FFFF00' }}
-                  type="checkbox"
-                  checked={
-                    (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
-                      fornecedor.id_fornecedor
-                    ) > -1
-                  }
-                  onChange={(event) =>
-                    handleCheckboxChange(
-                      fornecedor.id_fornecedor,
-                      formatFns(day, "dd/MM/yyyy"),
-                      event.target.checked,
-                      1
-                    )
-                  }
-                />
+                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, ''))}>
+                  {showMenu && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${menuPosition.x}px`,
+                        top: `${menuPosition.y}px`,
+                        backgroundColor: '#fff',
+                        border: '1px solid #ccc',
+                        padding: '0.5rem',
+                      }}
+                      onClick={hideMenu}
+                    >
+                      <ul style={{ cursor: 'pointer' }}>
+                        <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
+                        <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
+                      </ul>
+                    </div>
+                  )}
+                  <input
+                    type="checkbox"
+                    checked={
+                      (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
+                        fornecedor.id_fornecedor
+                      ) > -1
+                    }
+                    onChange={(event) =>
+                      handleCheckboxChange(
+                        fornecedor.id_fornecedor,
+                        formatFns(day, "dd/MM/yyyy"),
+                        event.target.checked,
+                        1
+                      )
+                    }
+                  />
+                </div>
               </td>
             ))}
           </tr>
@@ -167,6 +227,13 @@ A exclusão só será executada quando for confirmado as alterações através d
       </tbody>
     );
   };
+
+  /*                  <div style={{
+                    width: '10px',
+                    height: '10px',
+                    backgroundColor: statusInicial(formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '')),
+                    borderRadius: '50px'
+                  }}></div>*/
 
   async function addSemana() {
 
@@ -282,8 +349,16 @@ A exclusão só será executada quando for confirmado as alterações através d
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
 
-      const { id_fornecedor, data } = doc.data();
+      const { id_fornecedor, data, id_semana, liberado, status } = doc.data();
       handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
+
+      const novoObjeto = {
+        id_semana,
+        liberado,
+        status
+      }; 
+
+      pronto.push(novoObjeto);
 
     });
   }
