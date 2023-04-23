@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format as formatFns, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
@@ -24,9 +24,14 @@ interface salvos {
 }
 
 interface semanaProps {
-id_semana: string;
-pronto: boolean;
-status: string;
+  ativo: string;
+  data: string;
+  id_caixa: number;
+  id_fornecedor: number;
+  id_semana: string;
+  inserido_em: string;
+  status: string;
+  cor: string;
 }
 
 const Table: React.FC<TableProps> = ({ fornec }) => {
@@ -40,10 +45,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [diaFormat, setDiaFormat] = useState(dayjs().locale('pt-br'));
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const [pronto, setPronto] = useState([]);
-  
+  const [pronto, setPronto] = useState('');
 
-  // const navigate = useNavigate();
+  const [NovaSemana, setNovaSemana] = useState<semanaProps[]>([])
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
     addDays(semanaAtual, i)
@@ -51,13 +55,10 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const SemanaAnterior = () => {
     setSemanaAtual(subDays(semanaAtual, 8));
-
   };
 
   const SemanaSeguinte = () => {
     setSemanaAtual(addDays(semanaAtual, 8));
-
-    console.log(semana.length);
   };
 
   async function ConfirmaExcluir(auxSemana: string) {
@@ -158,21 +159,28 @@ A exclusão só será executada quando for confirmado as alterações através d
   }
 
   async function inicial(confirma: boolean) {
-    //   alert(semanaSel + '  ' + confirma)
-  }
 
-  function statusInicial(semanaStatus: string) {
+    let novaCor = '';
 
-    (async () => {
-      const docRef = doc(db, "semana", semanaStatus);
-      const docSnap = await getDoc(docRef);
+    if (confirma) {
+      novaCor = '#25cc23';
+    } else {
+      novaCor = 'gray'
+    }
 
-      const idcaixa = docSnap.data().id_caixa;
-      const idsemana = docSnap.data().id_semana;
-    })
+    try {
+      const docRef = await updateDoc(doc(db, "semana", semanaSel), {
 
-    const a = 'red'
-    return a;
+        cor: novaCor
+
+      });
+
+      console.log("Document written with ID: ", docRef);
+
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      return
+    }
   }
 
   const renderTableBody = () => {
@@ -184,7 +192,7 @@ A exclusão só será executada quando for confirmado as alterações através d
             <td>{fornecedor.nome}</td>
             {DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
-                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, ''))}>
+                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
                   {showMenu && (
                     <div
                       style={{
@@ -219,6 +227,31 @@ A exclusão só será executada quando for confirmado as alterações através d
                       )
                     }
                   />
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+
+                    <div
+                      style={{
+                        width: '10px',
+                        height: '10px',
+                        backgroundColor:
+                          NovaSemana.find(
+                            item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
+                        borderRadius: '50px'
+                      }}
+                    ></div>
+
+                    <div
+                      style={{
+                        width: '10px',
+                        height: '10px',
+                        backgroundColor: NovaSemana.find(
+                          item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status,
+                        borderRadius: '50px'
+                      }}
+                    > {NovaSemana.find(
+                      item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status
+                      } </div>
+                  </div>
                 </div>
               </td>
             ))}
@@ -227,13 +260,6 @@ A exclusão só será executada quando for confirmado as alterações através d
       </tbody>
     );
   };
-
-  /*                  <div style={{
-                    width: '10px',
-                    height: '10px',
-                    backgroundColor: statusInicial(formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '')),
-                    borderRadius: '50px'
-                  }}></div>*/
 
   async function addSemana() {
 
@@ -320,7 +346,8 @@ A exclusão só será executada quando for confirmado as alterações através d
                 data: dia,
                 ativo: 'Inativos',
                 inserido_em: formatFns(semanaAtual, "dd/MM/yyyy"),
-                status: ''
+                status: '',
+                cor: 'gray'
               });
               console.log("Document written with ID: ", docRef);
               //   menssagem('Dados salvos com sucesso!', false);
@@ -331,7 +358,6 @@ A exclusão só será executada quando for confirmado as alterações através d
               return
             }
           }
-
         })
       }
     });
@@ -342,25 +368,28 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   async function carregaSemana() {
 
-
     const semanaRef = collection(db, "semana");
     const q = query(semanaRef, where('data', '>=', formatFns(semanaAtual, "dd/MM/yyyy")));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
 
-      const { id_fornecedor, data, id_semana, liberado, status } = doc.data();
+      const { id_fornecedor, data } = doc.data();
       handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
 
-      const novoObjeto = {
-        id_semana,
-        liberado,
-        status
-      }; 
-
-      pronto.push(novoObjeto);
-
     });
+  }
+
+  function NovoCarregasemana() {
+
+    const unsub = onSnapshot(collection(db, "semana"), (querySnapshot) => {
+      const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
+      setNovaSemana(data);
+    });
+
+    return () => {
+      unsub();
+    };
   }
 
   function iniciaNovoExcluir() {
@@ -384,6 +413,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
     carregaSemana();
     iniciaNovoExcluir();
+    NovoCarregasemana();
 
   }, [semanaAtual]);
 
@@ -406,6 +436,7 @@ A exclusão só será executada quando for confirmado as alterações através d
       <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
         Confirmar
       </button>
+
     </>
   );
 };
