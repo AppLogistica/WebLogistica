@@ -32,6 +32,7 @@ interface semanaProps {
   inserido_em: string;
   status: string;
   cor: string;
+  id: string;
 }
 
 const Table: React.FC<TableProps> = ({ fornec }) => {
@@ -163,7 +164,7 @@ A exclusão só será executada quando for confirmado as alterações através d
     let novaCor = '';
 
     if (confirma) {
-      novaCor = '#25cc23';
+      novaCor = '#7fdec7';
     } else {
       novaCor = 'gray'
     }
@@ -231,26 +232,29 @@ A exclusão só será executada quando for confirmado as alterações através d
 
                     <div
                       style={{
-                        width: '10px',
-                        height: '10px',
+                        width: '15px',
+                        height: '15px',
                         backgroundColor:
                           NovaSemana.find(
-                            item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
+                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
                         borderRadius: '50px'
                       }}
-                    ></div>
+                    >
+                    </div>
 
                     <div
                       style={{
-                        width: '10px',
-                        height: '10px',
+                        width: '15px',
+                        height: '15px',
                         backgroundColor: NovaSemana.find(
-                          item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status,
+                          item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'VAZIA' ? 'blue'
+                          : (NovaSemana.find(
+                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'CHEIA' ? 'green' : 
+                            (NovaSemana.find(
+                              item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.ativo === 'Finalizado' ? '#f39c12' : '')),
                         borderRadius: '50px'
                       }}
-                    > {NovaSemana.find(
-                      item => item.id_semana === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status
-                      } </div>
+                    ></div>
                   </div>
                 </div>
               </td>
@@ -350,7 +354,6 @@ A exclusão só será executada quando for confirmado as alterações através d
                 cor: 'gray'
               });
               console.log("Document written with ID: ", docRef);
-              //   menssagem('Dados salvos com sucesso!', false);
 
             } catch (e) {
               console.error("Error adding document: ", e);
