@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { format as formatFns, addDays, subDays } from "date-fns";
-import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc, Timestamp } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
 import "./styles.css";
@@ -10,6 +10,8 @@ import { menssagem } from "../componentes/menssagem";
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
+import { firestore } from "firebase-admin";
+import moment from 'moment';
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -84,6 +86,8 @@ A exclusão só será executada quando for confirmado as alterações através d
     checked: boolean,
     clique: number
   ) => {
+
+    //alert(fornecedorId)
 
     setDadosSemana((prevState) => ({
       ...prevState,
@@ -249,7 +253,7 @@ A exclusão só será executada quando for confirmado as alterações através d
                         backgroundColor: NovaSemana.find(
                           item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'VAZIA' ? 'blue'
                           : (NovaSemana.find(
-                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'CHEIA' ? 'green' : 
+                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'CHEIA' ? 'green' :
                             (NovaSemana.find(
                               item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.ativo === 'Finalizado' ? '#f39c12' : '')),
                         borderRadius: '50px'
@@ -328,6 +332,7 @@ A exclusão só será executada quando for confirmado as alterações através d
     setExcluir({});
 
     Object.entries(dadosNovos).forEach(([dia, dados]) => {
+
       if (dados.length > 0) {
         dados.map(async id_fornec => {
 
@@ -340,6 +345,10 @@ A exclusão só será executada quando for confirmado as alterações através d
           const docRef = doc(db, "semana", auxSemana);
           const docSnap = await getDoc(docRef);
 
+          const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
+          const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
+   
+
           if (!docSnap.exists()) {
 
             try {
@@ -349,9 +358,11 @@ A exclusão só será executada quando for confirmado as alterações através d
                 id_caixa: null,
                 data: dia,
                 ativo: 'Inativos',
-                inserido_em: formatFns(semanaAtual, "dd/MM/yyyy"),
+                inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
                 status: '',
-                cor: 'gray'
+                cor: 'gray',
+                DataTime: dataTemp
+
               });
               console.log("Document written with ID: ", docRef);
 
@@ -372,7 +383,7 @@ A exclusão só será executada quando for confirmado as alterações através d
   async function carregaSemana() {
 
     const semanaRef = collection(db, "semana");
-    const q = query(semanaRef, where('data', '>=', formatFns(semanaAtual, "dd/MM/yyyy")));
+    const q = query(semanaRef, where('DataTime', '>=', subDays(semanaAtual, 5)));
 
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
