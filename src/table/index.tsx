@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { firestore } from "firebase-admin";
 import moment from 'moment';
+import { supabase } from "../supabase/database";
 
 export interface TableProps {
   fornec: FornecedorProps[];
@@ -35,6 +36,7 @@ interface semanaProps {
   status: string;
   cor: string;
   id: string;
+  DataTime: Timestamp
 }
 
 const Table: React.FC<TableProps> = ({ fornec }) => {
@@ -198,256 +200,294 @@ A exclusão só será executada quando for confirmado as alterações através d
       }
     }
   }
+  // para sicronizar com p supabase
+  async function atualizaSupabase() {
 
-  const renderTableBody = () => {
-    return (
-      <tbody className="topoTabela">
-        {fornec.map((fornecedor) => (
-          <tr key={fornecedor.id_fornecedor}>
-            <td>{fornecedor.id_fornecedor}</td>
-            <td>{fornecedor.nome}</td>
-            {DiasSemana.map((day) => (
-              <td key={formatFns(day, "dd/MM/yyyy")}>
-                <div
-                  style={{
-                    backgroundColor:
-                      NovaSemana.find(
-                        item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
-                    borderRadius: '5px'
-                  }}
-                >
+    console.log(NovaSemana.length);
+    
 
-                  <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
-                    {showMenu && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: `${menuPosition.x}px`,
-                          top: `${menuPosition.y}px`,
-                          backgroundColor: '#fff',
-                          border: '1px solid #ccc',
-                          padding: '0.5rem',
-                        }}
-                        onClick={hideMenu}
-                      >
-                        <ul style={{ cursor: 'pointer' }}>
-                          <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
-                          <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
-                        </ul>
-                      </div>
-                    )}
-                    <input
-                      type="checkbox"
-                      checked={
-                        (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
-                          fornecedor.id_fornecedor
-                        ) > -1
-                      }
-                      onChange={(event) =>
-                        handleCheckboxChange(
-                          fornecedor.id_fornecedor,
-                          formatFns(day, "dd/MM/yyyy"),
-                          event.target.checked,
-                          1
-                        )
-                      }
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    NovaSemana.map(async (fireSemana) => {
+      
+      const { data: semanaSup, errorSemanaSup } = await supabase
+        .from('semana')
+        .upsert([{
+          id_semana: fireSemana.id_semana.substring(0, 13),
+          status: fireSemana.status,
+          id_fornecedor: fireSemana.id_fornecedor,
+          data_: moment(fireSemana.data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+          id_caixa: fireSemana.id_caixa,
+          inserido_em: moment(fireSemana.inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+          id: fireSemana.id_semana,
+          ativo: fireSemana.ativo,
+          cor: fireSemana.cor
 
-                    </div>
-                  </div>
-                </div>
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    );
-  };
-
-  async function addSemana() {
-
-    Object.entries(excluir).forEach(([dia, dados]) => {
-
-      if (dados.length > 0) {
-        dados.map(async id_fornec => {
-
-          let dataDia = dia.replaceAll('/', '')
-
-          const id_fornecFormat = id_fornec.toString().padStart(4, '0');
-
-          const auxSemana = `${dataDia}.${id_fornecFormat}`;
-
-          const docRef = doc(db, "semana", auxSemana);
-          const docSnap = await getDoc(docRef);
-
-          const idcaixa = docSnap.data().id_caixa;
-          const idsemana = docSnap.data().id_semana;
-
-          try {
-
-            if (idcaixa) {
-
-              try {
-                const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
-                  Latitude: null,
-                  Longitude: null,
-                  id_local: 1,
-                  id_status: 1,
-                  livre: true,
-                  nome: idcaixa
-
-                });
-                console.log("Document written with ID: ", docRef);
-
-
-              } catch (e) {
-                console.error("Error adding document: ", e);
-                return
-              }
-            }
-
-            const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
-
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach(async (documento) => {
-
-              await deleteDoc(doc(db, 'historicoStatus', documento.id));
-            });
-
-            await deleteDoc(doc(db, 'semana', auxSemana));
-
-          } catch (error) {
-            menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
-          }
-        })
-      }
+        }], { upsert: true })
     })
 
-    setExcluir({});
+    fornec.map(async (fornecedor) => {
+      const { data: fornecedorSup, errorFornecedorSup } = await supabase
+        .from('fornecedor')
+        .upsert([{
+          id_fornecedor: fornecedor.id_fornecedor,
+          nome: fornecedor.nome,
+          cidade: fornecedor.cidade
 
-    Object.entries(dadosNovos).forEach(([dia, dados]) => {
+        }], { upsert: true })
+    })
+}
 
-      if (dados.length > 0) {
-        dados.map(async id_fornec => {
+const renderTableBody = () => {
+  return (
+    <tbody className="topoTabela">
+      {fornec.map((fornecedor) => (
+        <tr key={fornecedor.id_fornecedor}>
+          <td>{fornecedor.id_fornecedor}</td>
+          <td>{fornecedor.nome}</td>
+          {DiasSemana.map((day) => (
+            <td key={formatFns(day, "dd/MM/yyyy")}>
+              <div
+                style={{
+                  backgroundColor:
+                    NovaSemana.find(
+                      item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
+                  borderRadius: '5px'
+                }}
+              >
 
+                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
+                  {showMenu && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: `${menuPosition.x}px`,
+                        top: `${menuPosition.y}px`,
+                        backgroundColor: '#fff',
+                        border: '1px solid #ccc',
+                        padding: '0.5rem',
+                      }}
+                      onClick={hideMenu}
+                    >
+                      <ul style={{ cursor: 'pointer' }}>
+                        <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
+                        <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
+                      </ul>
+                    </div>
+                  )}
+                  <input
+                    type="checkbox"
+                    checked={
+                      (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
+                        fornecedor.id_fornecedor
+                      ) > -1
+                    }
+                    onChange={(event) =>
+                      handleCheckboxChange(
+                        fornecedor.id_fornecedor,
+                        formatFns(day, "dd/MM/yyyy"),
+                        event.target.checked,
+                        1
+                      )
+                    }
+                  />
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
-          let dataDia = dia.replaceAll('/', '')
+                  </div>
+                </div>
+              </div>
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  );
+};
 
-          const id_fornecFormat = id_fornec.toString().padStart(4, '0');
-          const auxSemana = `${dataDia}.${id_fornecFormat}`;
+async function addSemana() {
 
-          const docRef = doc(db, "semana", auxSemana);
-          const docSnap = await getDoc(docRef);
+  Object.entries(excluir).forEach(([dia, dados]) => {
 
-          const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
-          const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
+    if (dados.length > 0) {
+      dados.map(async id_fornec => {
 
+        let dataDia = dia.replaceAll('/', '')
 
-          if (!docSnap.exists()) {
+        const id_fornecFormat = id_fornec.toString().padStart(4, '0');
+
+        const auxSemana = `${dataDia}.${id_fornecFormat}`;
+
+        const docRef = doc(db, "semana", auxSemana);
+        const docSnap = await getDoc(docRef);
+
+        const idcaixa = docSnap.data().id_caixa;
+        const idsemana = docSnap.data().id_semana;
+
+        try {
+
+          if (idcaixa) {
 
             try {
-              const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-                id_semana: `${dataDia}.${id_fornecFormat}`,
-                id_fornecedor: id_fornec,
-                id_caixa: null,
-                data: dia,
-                ativo: 'Inativos',
-                inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
-                status: '',
-                cor: 'gray',
-                DataTime: dataTemp
+              const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
+                Latitude: null,
+                Longitude: null,
+                id_local: 1,
+                id_status: 1,
+                livre: true,
+                nome: idcaixa
 
               });
               console.log("Document written with ID: ", docRef);
 
+
             } catch (e) {
               console.error("Error adding document: ", e);
-              menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
               return
             }
           }
-        })
-      }
-    });
-    menssagem('Dados salvos com sucesso!', false)
-    setDadosNovos({});
-    iniciaNovoExcluir();
-  }
 
-  async function carregaSemana() {
+          const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
 
-    const semanaRef = collection(db, "semana");
-    const q = query(semanaRef, where('DataTime', '>=', subDays(semanaAtual, 5)));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach(async (documento) => {
 
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach((doc) => {
+            await deleteDoc(doc(db, 'historicoStatus', documento.id));
+          });
 
-      const { id_fornecedor, data } = doc.data();
-      handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
+          await deleteDoc(doc(db, 'semana', auxSemana));
 
-    });
-  }
-
-  function NovoCarregasemana() {
-
-    const unsub = onSnapshot(collection(db, "semana"), (querySnapshot) => {
-      const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
-      setNovaSemana(data);
-    });
-
-    return () => {
-      unsub();
-    };
-  }
-
-  function iniciaNovoExcluir() {
-
-    for (var i = 1; i < 9; i++) {
-      let aux = addDays(semanaAtual, i - 1)
-
-      setDadosNovos((prevState) => ({
-        ...prevState,
-        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
-      }));
-
-      setExcluir((prevState) => ({
-        ...prevState,
-        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
-      }));
+        } catch (error) {
+          menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
+        }
+      })
     }
+  })
+
+  setExcluir({});
+
+  Object.entries(dadosNovos).forEach(([dia, dados]) => {
+
+    if (dados.length > 0) {
+      dados.map(async id_fornec => {
+
+
+        let dataDia = dia.replaceAll('/', '')
+
+        const id_fornecFormat = id_fornec.toString().padStart(4, '0');
+        const auxSemana = `${dataDia}.${id_fornecFormat}`;
+
+        const docRef = doc(db, "semana", auxSemana);
+        const docSnap = await getDoc(docRef);
+
+        const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
+        const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
+
+
+        if (!docSnap.exists()) {
+
+          try {
+            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
+              id_semana: `${dataDia}.${id_fornecFormat}`,
+              id_fornecedor: id_fornec,
+              id_caixa: null,
+              data: dia,
+              ativo: 'Inativos',
+              inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
+              status: '',
+              cor: 'gray',
+              DataTime: dataTemp
+
+            });
+            console.log("Document written with ID: ", docRef);
+
+          } catch (e) {
+            console.error("Error adding document: ", e);
+            menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
+            return
+          }
+        }
+      })
+    }
+  });
+  menssagem('Dados salvos com sucesso!', false)
+  setDadosNovos({});
+  iniciaNovoExcluir();
+}
+
+async function carregaSemana() {
+
+  const semanaRef = collection(db, "semana");
+  const q = query(semanaRef, where('DataTime', '>=', subDays(semanaAtual, 5)));
+
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((doc) => {
+
+    const { id_fornecedor, data } = doc.data();
+    handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
+
+  });
+}
+
+function NovoCarregasemana() {
+
+  const q = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
+
+  const unsub = onSnapshot(q, (querySnapshot) => {
+    const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
+    setNovaSemana(data);
+  });
+
+  return () => {
+    unsub();
+  };
+}
+
+function iniciaNovoExcluir() {
+
+  for (var i = 1; i < 9; i++) {
+    let aux = addDays(semanaAtual, i - 1)
+
+    setDadosNovos((prevState) => ({
+      ...prevState,
+      [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
+    }));
+
+    setExcluir((prevState) => ({
+      ...prevState,
+      [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
+    }));
   }
+}
 
-  useEffect(() => {
+useEffect(() => {
 
-    carregaSemana();
-    iniciaNovoExcluir();
-    NovoCarregasemana();
+  carregaSemana();
+  iniciaNovoExcluir();
+  NovoCarregasemana();
 
-  }, [semanaAtual]);
+}, [semanaAtual]);
 
-  return (
-    <>
-      <div><Toaster /></div>
-      <div className="topTable">
+return (
+  <>
+    <div><Toaster /></div>
+    <div className="topTable">
 
-        <button onClick={SemanaAnterior}>Semana Anterior</button>
+      <button onClick={SemanaAnterior}>Semana Anterior</button>
 
-        <span >{formatFns(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
-        <button onClick={SemanaSeguinte}>Próxima Semana</button>
-      </div>
+      <span >{formatFns(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
+      <button onClick={SemanaSeguinte}>Próxima Semana</button>
+    </div>
 
-      <table>
-        {renderTableHeader()}
-        {renderTableBody()}
-      </table>
+    <table>
+      {renderTableHeader()}
+      {renderTableBody()}
+    </table>
 
-      <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
-        Confirmar
-      </button>
+    <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
+      Confirmar
+    </button>
 
-    </>
-  );
+    <button onClick={atualizaSupabase} >teste</button>
+  </>
+);
 };
 
 export default Table;
