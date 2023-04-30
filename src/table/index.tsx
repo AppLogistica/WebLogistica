@@ -204,10 +204,10 @@ A exclusão só será executada quando for confirmado as alterações através d
   async function atualizaSupabase() {
 
     console.log(NovaSemana.length);
-    
+
 
     NovaSemana.map(async (fireSemana) => {
-      
+
       const { data: semanaSup, errorSemanaSup } = await supabase
         .from('semana')
         .upsert([{
@@ -234,260 +234,279 @@ A exclusão só será executada quando for confirmado as alterações através d
 
         }], { upsert: true })
     })
-}
+  }
 
-const renderTableBody = () => {
-  return (
-    <tbody className="topoTabela">
-      {fornec.map((fornecedor) => (
-        <tr key={fornecedor.id_fornecedor}>
-          <td>{fornecedor.id_fornecedor}</td>
-          <td>{fornecedor.nome}</td>
-          {DiasSemana.map((day) => (
-            <td key={formatFns(day, "dd/MM/yyyy")}>
-              <div
-                style={{
-                  backgroundColor:
-                    NovaSemana.find(
-                      item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
-                  borderRadius: '5px'
-                }}
-              >
+  const renderTableBody = () => {
+    return (
+      <tbody className="topoTabela">
+        {fornec.map((fornecedor) => (
+          <tr key={fornecedor.id_fornecedor}>
+            <td>{fornecedor.id_fornecedor}</td>
+            <td>{fornecedor.nome}</td>
+            {DiasSemana.map((day) => (
+              <td key={formatFns(day, "dd/MM/yyyy")}>
+                <div
+                  style={{
+                    backgroundColor:
+                      NovaSemana.find(
+                        item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
+                    borderRadius: '5px'
+                  }}
+                >
 
-                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
-                  {showMenu && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: `${menuPosition.x}px`,
-                        top: `${menuPosition.y}px`,
-                        backgroundColor: '#fff',
-                        border: '1px solid #ccc',
-                        padding: '0.5rem',
-                      }}
-                      onClick={hideMenu}
-                    >
-                      <ul style={{ cursor: 'pointer' }}>
-                        <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
-                        <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
-                      </ul>
+                  <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
+                    {showMenu && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: `${menuPosition.x}px`,
+                          top: `${menuPosition.y}px`,
+                          backgroundColor: '#fff',
+                          border: '1px solid #ccc',
+                          padding: '0.5rem',
+                        }}
+                        onClick={hideMenu}
+                      >
+                        <ul style={{ cursor: 'pointer' }}>
+                          <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
+                          <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
+                        </ul>
+                      </div>
+                    )}
+                    <input
+                      type="checkbox"
+                      checked={
+                        (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
+                          fornecedor.id_fornecedor
+                        ) > -1
+                      }
+                      onChange={(event) =>
+                        handleCheckboxChange(
+                          fornecedor.id_fornecedor,
+                          formatFns(day, "dd/MM/yyyy"),
+                          event.target.checked,
+                          1
+                        )
+                      }
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+
                     </div>
-                  )}
-                  <input
-                    type="checkbox"
-                    checked={
-                      (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
-                        fornecedor.id_fornecedor
-                      ) > -1
-                    }
-                    onChange={(event) =>
-                      handleCheckboxChange(
-                        fornecedor.id_fornecedor,
-                        formatFns(day, "dd/MM/yyyy"),
-                        event.target.checked,
-                        1
-                      )
-                    }
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-
                   </div>
                 </div>
-              </div>
-            </td>
-          ))}
-        </tr>
-      ))}
-    </tbody>
-  );
-};
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    );
+  };
 
-async function addSemana() {
+  async function addSemana() {
 
-  Object.entries(excluir).forEach(([dia, dados]) => {
+    Object.entries(excluir).forEach(([dia, dados]) => {
 
-    if (dados.length > 0) {
-      dados.map(async id_fornec => {
+      if (dados.length > 0) {
+        dados.map(async id_fornec => {
 
-        let dataDia = dia.replaceAll('/', '')
+          let dataDia = dia.replaceAll('/', '')
 
-        const id_fornecFormat = id_fornec.toString().padStart(4, '0');
+          const id_fornecFormat = id_fornec.toString().padStart(4, '0');
 
-        const auxSemana = `${dataDia}.${id_fornecFormat}`;
+          const auxSemana = `${dataDia}.${id_fornecFormat}`;
 
-        const docRef = doc(db, "semana", auxSemana);
-        const docSnap = await getDoc(docRef);
+          const docRef = doc(db, "semana", auxSemana);
+          const docSnap = await getDoc(docRef);
 
-        const idcaixa = docSnap.data().id_caixa;
-        const idsemana = docSnap.data().id_semana;
+          const idcaixa = docSnap.data().id_caixa;
+          const idsemana = docSnap.data().id_semana;
 
-        try {
+          try {
 
-          if (idcaixa) {
+            if (idcaixa) {
+
+              try {
+                const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
+                  Latitude: null,
+                  Longitude: null,
+                  id_local: 1,
+                  id_status: 1,
+                  livre: true,
+                  nome: idcaixa
+
+                });
+                console.log("Document written with ID: ", docRef);
+
+
+              } catch (e) {
+                console.error("Error adding document: ", e);
+                return
+              }
+            }
+
+            const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async (documento) => {
+
+              await deleteDoc(doc(db, 'historicoStatus', documento.id));
+            });
+
+            await deleteDoc(doc(db, 'semana', auxSemana));
+
+          } catch (error) {
+            menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
+          }
+        })
+      }
+    })
+
+    setExcluir({});
+
+    Object.entries(dadosNovos).forEach(([dia, dados]) => {
+
+      if (dados.length > 0) {
+        dados.map(async id_fornec => {
+
+
+          let dataDia = dia.replaceAll('/', '')
+
+          const id_fornecFormat = id_fornec.toString().padStart(4, '0');
+          const auxSemana = `${dataDia}.${id_fornecFormat}`;
+
+          const docRef = doc(db, "semana", auxSemana);
+          const docSnap = await getDoc(docRef);
+
+          const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
+          const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
+
+
+          if (!docSnap.exists()) {
 
             try {
-              const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
-                Latitude: null,
-                Longitude: null,
-                id_local: 1,
-                id_status: 1,
-                livre: true,
-                nome: idcaixa
+              const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
+                id_semana: `${dataDia}.${id_fornecFormat}`,
+                id_fornecedor: id_fornec,
+                id_caixa: null,
+                data: dia,
+                ativo: 'Inativos',
+                inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
+                status: '',
+                cor: 'gray',
+                DataTime: dataTemp
 
               });
               console.log("Document written with ID: ", docRef);
 
-
             } catch (e) {
               console.error("Error adding document: ", e);
+              menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
               return
             }
           }
-
-          const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
-
-          const querySnapshot = await getDocs(q);
-          querySnapshot.forEach(async (documento) => {
-
-            await deleteDoc(doc(db, 'historicoStatus', documento.id));
-          });
-
-          await deleteDoc(doc(db, 'semana', auxSemana));
-
-        } catch (error) {
-          menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
-        }
-      })
-    }
-  })
-
-  setExcluir({});
-
-  Object.entries(dadosNovos).forEach(([dia, dados]) => {
-
-    if (dados.length > 0) {
-      dados.map(async id_fornec => {
-
-
-        let dataDia = dia.replaceAll('/', '')
-
-        const id_fornecFormat = id_fornec.toString().padStart(4, '0');
-        const auxSemana = `${dataDia}.${id_fornecFormat}`;
-
-        const docRef = doc(db, "semana", auxSemana);
-        const docSnap = await getDoc(docRef);
-
-        const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
-        const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
-
-
-        if (!docSnap.exists()) {
-
-          try {
-            const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-              id_semana: `${dataDia}.${id_fornecFormat}`,
-              id_fornecedor: id_fornec,
-              id_caixa: null,
-              data: dia,
-              ativo: 'Inativos',
-              inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
-              status: '',
-              cor: 'gray',
-              DataTime: dataTemp
-
-            });
-            console.log("Document written with ID: ", docRef);
-
-          } catch (e) {
-            console.error("Error adding document: ", e);
-            menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
-            return
-          }
-        }
-      })
-    }
-  });
-  menssagem('Dados salvos com sucesso!', false)
-  setDadosNovos({});
-  iniciaNovoExcluir();
-}
-
-async function carregaSemana() {
-
-  const semanaRef = collection(db, "semana");
-  const q = query(semanaRef, where('DataTime', '>=', subDays(semanaAtual, 5)));
-
-  const querySnapshot = await getDocs(q);
-  querySnapshot.forEach((doc) => {
-
-    const { id_fornecedor, data } = doc.data();
-    handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
-
-  });
-}
-
-function NovoCarregasemana() {
-
-  const q = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
-
-  const unsub = onSnapshot(q, (querySnapshot) => {
-    const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
-    setNovaSemana(data);
-  });
-
-  return () => {
-    unsub();
-  };
-}
-
-function iniciaNovoExcluir() {
-
-  for (var i = 1; i < 9; i++) {
-    let aux = addDays(semanaAtual, i - 1)
-
-    setDadosNovos((prevState) => ({
-      ...prevState,
-      [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
-    }));
-
-    setExcluir((prevState) => ({
-      ...prevState,
-      [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
-    }));
+        })
+      }
+    });
+    menssagem('Dados salvos com sucesso!', false)
+    setDadosNovos({});
+    iniciaNovoExcluir();
   }
-}
 
-useEffect(() => {
+  async function carregaSemana() {
 
-  carregaSemana();
-  iniciaNovoExcluir();
-  NovoCarregasemana();
+    const semanaRef = collection(db, "semana");
+    const q = query(semanaRef, where('DataTime', '>=', subDays(semanaAtual, 5)));
 
-}, [semanaAtual]);
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach((doc) => {
 
-return (
-  <>
-    <div><Toaster /></div>
-    <div className="topTable">
+      const { id_fornecedor, data } = doc.data();
+      handleCheckboxChange(id_fornecedor, `${data}`, true, 0);
 
-      <button onClick={SemanaAnterior}>Semana Anterior</button>
+    });
+  }
 
-      <span >{formatFns(semanaAtual, "'Semana de' dd/MM/yyyy")}</span>
-      <button onClick={SemanaSeguinte}>Próxima Semana</button>
-    </div>
+  function NovoCarregasemana() {
 
-    <table>
-      {renderTableHeader()}
-      {renderTableBody()}
-    </table>
+    const q = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
 
-    <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
-      Confirmar
-    </button>
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
+      setNovaSemana(data);
+    });
 
-    <button onClick={atualizaSupabase} >teste</button>
-  </>
-);
+    return () => {
+      unsub();
+    };
+  }
+
+  function iniciaNovoExcluir() {
+
+    for (var i = 1; i < 9; i++) {
+      let aux = addDays(semanaAtual, i - 1)
+
+      setDadosNovos((prevState) => ({
+        ...prevState,
+        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
+      }));
+
+      setExcluir((prevState) => ({
+        ...prevState,
+        [formatFns(aux, "dd/MM/yyyy")]: [...(prevState[formatFns(aux, "dd/MM/yyyy")] || [])]
+      }));
+    }
+  }
+
+  useEffect(() => {
+
+    carregaSemana();
+    iniciaNovoExcluir();
+    NovoCarregasemana();
+
+  }, [semanaAtual]);
+
+  return (
+    <>
+      <div><Toaster /></div>
+      <div className="topTable">
+
+        <button onClick={SemanaAnterior}>Semana Anterior</button>
+
+        <button onClick={SemanaSeguinte}>Próxima Semana</button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 20 }}>
+        <h4 style={{marginRight: 30}}>Legenda:</h4>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: 'gray' }}></div>
+        <h5 style={{ marginLeft: 5 }}>Não confirmado</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#7fdec7', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Confirmado</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#4444fa', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Caminhão X VAZIA</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#e8e829', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Fornecedor X VAZIA</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#209b20', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Fornecedor X CHEIA</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#FF5733', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Caminhão X CHEIA</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#b97a56', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Fabrica X CHEIA</h5>
+        <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#f39c12', marginLeft: 20 }}></div>
+        <h5 style={{ marginLeft: 5 }}>Descarregado</h5>
+      </div>
+
+      <table>
+        {renderTableHeader()}
+        {renderTableBody()}
+      </table>
+
+      <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
+        Confirmar
+      </button>
+
+
+    </>
+  );
 };
-
+// <button onClick={atualizaSupabase} >teste</button>
 export default Table;
