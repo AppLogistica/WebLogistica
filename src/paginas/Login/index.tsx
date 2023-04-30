@@ -17,7 +17,7 @@ export function Login() {
   function handleSignInResetPass() {
 
     signIn(email, password)
-      .then(() => {
+      .then((item) => {
         navigate('/main');
       })
       .catch((erro) => {

@@ -37,6 +37,8 @@ export function Main() {
 
     async function carregaFornecedor() {
 
+      alert(db.app.options.projectId);
+
       const unsub = onSnapshot(collection(db, "fornecedor"), (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as FornecedorProps);
         setFornecedor(data);
