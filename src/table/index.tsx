@@ -154,6 +154,9 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   function handleContextMenu(event, semanaDay: string) {
     event.preventDefault();
+
+
+
     setShowMenu(true);
     setMenuPosition({ x: event.clientX, y: event.clientY });
     setSemanaSel(semanaDay);
@@ -173,18 +176,26 @@ A exclusão só será executada quando for confirmado as alterações através d
       novaCor = 'gray'
     }
 
-    try {
-      const docRef = await updateDoc(doc(db, "semana", semanaSel), {
+    const docRef = doc(db, "semana", semanaSel);
+    const docSnap = await getDoc(docRef);
 
-        cor: novaCor
 
-      });
+    const corAtual = docSnap.data().cor;
 
-      console.log("Document written with ID: ", docRef);
+    if (corAtual === 'gray' || corAtual == '#7fdec7') {
+      try {
+        const docRef = await updateDoc(doc(db, "semana", semanaSel), {
 
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      return
+          cor: novaCor
+
+        });
+
+        console.log("Document written with ID: ", docRef);
+
+      } catch (e) {
+        console.error("Error adding document: ", e);
+        return
+      }
     }
   }
 
@@ -197,68 +208,53 @@ A exclusão só será executada quando for confirmado as alterações através d
             <td>{fornecedor.nome}</td>
             {DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
-                <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
-                  {showMenu && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: `${menuPosition.x}px`,
-                        top: `${menuPosition.y}px`,
-                        backgroundColor: '#fff',
-                        border: '1px solid #ccc',
-                        padding: '0.5rem',
-                      }}
-                      onClick={hideMenu}
-                    >
-                      <ul style={{ cursor: 'pointer' }}>
-                        <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
-                        <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
-                      </ul>
-                    </div>
-                  )}
-                  <input
-                    type="checkbox"
-                    checked={
-                      (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
-                        fornecedor.id_fornecedor
-                      ) > -1
-                    }
-                    onChange={(event) =>
-                      handleCheckboxChange(
-                        fornecedor.id_fornecedor,
-                        formatFns(day, "dd/MM/yyyy"),
-                        event.target.checked,
-                        1
-                      )
-                    }
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div
+                  style={{
+                    backgroundColor:
+                      NovaSemana.find(
+                        item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
+                    borderRadius: '5px'
+                  }}
+                >
 
-                    <div
-                      style={{
-                        width: '15px',
-                        height: '15px',
-                        backgroundColor:
-                          NovaSemana.find(
-                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.cor,
-                        borderRadius: '50px'
-                      }}
-                    >
-                    </div>
+                  <div onContextMenu={() => handleContextMenu(event, formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))}>
+                    {showMenu && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: `${menuPosition.x}px`,
+                          top: `${menuPosition.y}px`,
+                          backgroundColor: '#fff',
+                          border: '1px solid #ccc',
+                          padding: '0.5rem',
+                        }}
+                        onClick={hideMenu}
+                      >
+                        <ul style={{ cursor: 'pointer' }}>
+                          <li style={{ color: 'black' }} onClick={() => inicial(true)}>Confirma</li>
+                          <li style={{ color: 'black' }} onClick={() => inicial(false)}>Cancelar</li>
+                        </ul>
+                      </div>
+                    )}
+                    <input
+                      type="checkbox"
+                      checked={
+                        (dadosSemana[formatFns(day, "dd/MM/yyyy")] || []).indexOf(
+                          fornecedor.id_fornecedor
+                        ) > -1
+                      }
+                      onChange={(event) =>
+                        handleCheckboxChange(
+                          fornecedor.id_fornecedor,
+                          formatFns(day, "dd/MM/yyyy"),
+                          event.target.checked,
+                          1
+                        )
+                      }
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
 
-                    <div
-                      style={{
-                        width: '15px',
-                        height: '15px',
-                        backgroundColor: NovaSemana.find(
-                          item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'VAZIA' ? 'blue'
-                          : (NovaSemana.find(
-                            item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.status === 'CHEIA' ? 'green' :
-                            (NovaSemana.find(
-                              item => item.id_semana.substring(0, 13) === formatFns(day, "ddMMyyyy") + '.' + `${fornecedor.id_fornecedor}`.padStart(4, '0'))?.ativo === 'Finalizado' ? '#f39c12' : '')),
-                        borderRadius: '50px'
-                      }}
-                    ></div>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -315,8 +311,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach(async (documento) => {
-              // doc.data() is never undefined for query doc snapshots
-              // alert(documento.id);
+
               await deleteDoc(doc(db, 'historicoStatus', documento.id));
             });
 
@@ -347,7 +342,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
           const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
           const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
-   
+
 
           if (!docSnap.exists()) {
 
