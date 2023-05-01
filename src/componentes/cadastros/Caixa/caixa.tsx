@@ -199,7 +199,7 @@ const CadCaixa = () => {
         <div className='divide'></div>
         <form className='formu' onSubmit={handleSubmit}>
           <label htmlFor="nome">Caixa</label>
-          <input type="text" id="nome" value={nome} onChange={e => setNome(e.target.value)} />
+          <input type="number" id="nome" value={nome} onChange={e => setNome(e.target.value)} />
 
           <label htmlFor="livre">Livre</label>
           <ComboBox />

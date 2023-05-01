@@ -503,8 +503,6 @@ A exclusão só será executada quando for confirmado as alterações através d
       <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
         Confirmar
       </button>
-
-
     </>
   );
 };

@@ -150,7 +150,7 @@ const CadastroFornecedor = () => {
         <div className='divide'></div>
         <form className='formu' onSubmit={handleSubmit}>
           <label htmlFor="codigo">Código</label>
-          <input type="text" id="codigo" value={codigo} onChange={e => setCodigo(e.target.value)} />
+          <input type="number" id="codigo" value={codigo} onChange={e => setCodigo(e.target.value)} />
           <label htmlFor="nome">Nome</label>
           <input type="text" id="nome" value={nome.toUpperCase()} onChange={e => setNome(e.target.value)} />
 
