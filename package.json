@@ -12,6 +12,7 @@
     "@emotion/react": "^11.10.6",
     "@react-navigation/native": "^6.1.4",
     "@react-navigation/native-stack": "^6.9.10",
+    "@supabase/supabase-js": "^2.21.0",
     "@types/styled-components": "^5.1.26",
     "date-fns": "^2.29.3",
     "date-fns-tz": "^2.0.0",
