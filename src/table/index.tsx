@@ -200,41 +200,6 @@ A exclusão só será executada quando for confirmado as alterações através d
       }
     }
   }
-  // para sicronizar com p supabase
-  async function atualizaSupabase() {
-
-    console.log(NovaSemana.length);
-
-
-    NovaSemana.map(async (fireSemana) => {
-
-      const { data: semanaSup, errorSemanaSup } = await supabase
-        .from('semana')
-        .upsert([{
-          id_semana: fireSemana.id_semana.substring(0, 13),
-          status: fireSemana.status,
-          id_fornecedor: fireSemana.id_fornecedor,
-          data_: moment(fireSemana.data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id_caixa: fireSemana.id_caixa,
-          inserido_em: moment(fireSemana.inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id: fireSemana.id_semana,
-          ativo: fireSemana.ativo,
-          cor: fireSemana.cor
-
-        }], { upsert: true })
-    })
-
-    fornec.map(async (fornecedor) => {
-      const { data: fornecedorSup, errorFornecedorSup } = await supabase
-        .from('fornecedor')
-        .upsert([{
-          id_fornecedor: fornecedor.id_fornecedor,
-          nome: fornecedor.nome,
-          cidade: fornecedor.cidade
-
-        }], { upsert: true })
-    })
-  }
 
   const renderTableBody = () => {
     return (
