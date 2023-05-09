@@ -200,41 +200,6 @@ A exclusão só será executada quando for confirmado as alterações através d
       }
     }
   }
-  // para sicronizar com p supabase
-  async function atualizaSupabase() {
-
-    console.log(NovaSemana.length);
-
-
-    NovaSemana.map(async (fireSemana) => {
-
-      const { data: semanaSup, errorSemanaSup } = await supabase
-        .from('semana')
-        .upsert([{
-          id_semana: fireSemana.id_semana.substring(0, 13),
-          status: fireSemana.status,
-          id_fornecedor: fireSemana.id_fornecedor,
-          data_: moment(fireSemana.data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id_caixa: fireSemana.id_caixa,
-          inserido_em: moment(fireSemana.inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id: fireSemana.id_semana,
-          ativo: fireSemana.ativo,
-          cor: fireSemana.cor
-
-        }], { upsert: true })
-    })
-
-    fornec.map(async (fornecedor) => {
-      const { data: fornecedorSup, errorFornecedorSup } = await supabase
-        .from('fornecedor')
-        .upsert([{
-          id_fornecedor: fornecedor.id_fornecedor,
-          nome: fornecedor.nome,
-          cidade: fornecedor.cidade
-
-        }], { upsert: true })
-    })
-  }
 
   const renderTableBody = () => {
     return (
@@ -430,8 +395,18 @@ A exclusão só será executada quando for confirmado as alterações através d
 
     const q = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
 
+
+
+
     const unsub = onSnapshot(q, (querySnapshot) => {
-      const data = querySnapshot.docs.map((doc) => doc.data() as semanaProps);
+      const data = querySnapshot.docs.map(doc => {
+
+        return {
+          id: doc.id,
+          ...doc.data()
+        }
+      }) as SemanaProps[];
+
       setNovaSemana(data);
     });
 
@@ -465,6 +440,110 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   }, [semanaAtual]);
 
+
+  async function AtualizaSupabase() {
+
+    const semanaRef = collection(db, "semana");
+    const querysemana = await getDocs(semanaRef);
+
+    querysemana.docs.map(async (item) => {
+
+      const { data: Datasemana, error } = await supabase
+        .from('semana')
+        .upsert([{
+
+          id_semana: item.id,
+          id_caixa: item.data().id_caixa,
+          inserido_em: moment(item.data().inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+          id: item.data().id_semana,
+          ativo: item.data().ativo,
+          status: item.data().status,
+          cor: item.data().cor,
+          data_: moment(item.data().data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+          id_fornecedor: item.data().id_fornecedor
+
+        }])
+
+    })
+
+    const historicoRef = collection(db, "historicoStatus");
+    const queryHistorico = await getDocs(historicoRef);
+
+    queryHistorico.docs.map(async (item) => {
+
+      const { data: DataHistorico, error } = await supabase
+        .from('historicoStatus')
+        .upsert([{
+
+          id: item.id,
+          id_HistóricoSemana: item.data().id_HistóricoSemana,
+          id_caixa: item.data().id_caixa,
+          status: item.data().status,
+          local: item.data().local,
+          data: moment(item.data().data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+          hora: item.data().hora
+
+        }])
+    })
+
+    const caixaRef = collection(db, "caixa");
+    const querycaixa = await getDocs(caixaRef);
+
+    querycaixa.docs.map(async (item) => {
+
+      const { data: DataCaixa, error } = await supabase
+        .from('caixa')
+        .upsert([{
+
+          id_caixa: item.id,
+          nome: `${item.id}`,
+          livre: item.data().livre,
+          id_status: item.data().id_status,
+          id_local: item.data().id_local,
+          Latitude: item.data().Latitude,
+          Longitude: item.data().Longitude,
+          etapa: item.data().etapa
+
+        }])
+
+    })
+
+    const fornecedorRef = collection(db, "fornecedor");
+    const queryfornecedor = await getDocs(fornecedorRef);
+
+    queryfornecedor.docs.map(async (item) => {
+
+      const { data: Datafornecedor, error } = await supabase
+        .from('fornecedor')
+        .upsert([{
+
+          id_fornecedor: item.id,
+          nome: item.data().nome,
+          cidade: item.data().cidade
+
+        }])
+    })
+
+const etapaRef = collection(db, "ordemProceso");
+const etapafornecedor = await getDocs(etapaRef);
+
+etapafornecedor.docs.map(async (item) => {
+
+  const { data: Datafornecedor, error } = await supabase
+    .from('oredemProcesso')
+    .upsert([{
+
+      id: item.id,
+      id_local: item.data().id_local,
+      id_status: item.data().id_status,
+      nomeLocal: item.data().nomeLocal,
+      nomeStatus: item.data().nomeStatus
+
+    }])
+})
+
+  }
+
   return (
     <>
       <div><Toaster /></div>
@@ -476,7 +555,7 @@ A exclusão só será executada quando for confirmado as alterações através d
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 20 }}>
-        <h4 style={{marginRight: 30}}>Legenda:</h4>
+        <h4 style={{ marginRight: 30 }}>Legenda:</h4>
         <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: 'gray' }}></div>
         <h5 style={{ marginLeft: 5 }}>Não confirmado</h5>
         <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#7fdec7', marginLeft: 20 }}></div>
@@ -503,8 +582,11 @@ A exclusão só será executada quando for confirmado as alterações através d
       <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
         Confirmar
       </button>
+
+      <button onClick={AtualizaSupabase}>teste</button>
     </>
   );
 };
 // <button onClick={atualizaSupabase} >teste</button>
 export default Table;
+

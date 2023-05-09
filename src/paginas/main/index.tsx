@@ -2,7 +2,7 @@ import "./styles.css";
 
 import { useEffect, useState } from 'react'
 import Table, { TableProps } from '../../table'
-import { collection, onSnapshot, where, query, getDocs } from "firebase/firestore";
+import { collection, onSnapshot, where, query, getDocs, Timestamp } from "firebase/firestore";
 import db from '../../firebase/database';
 import { format, addDays, subDays } from "date-fns";
 import CadastroFornecedor from "../../componentes/cadastros/Fornecedor/CadFornec";
@@ -11,14 +11,17 @@ import { supabase } from "../../supabase/database";
 
 
 export interface SemanaProps {
-  ativo: boolean;
+  ativo: string;
   alterado_em: Date;
-  data: Date;
+  data: string;
   id_caixa: null | number;
   id_fornecedor: number;
-  id_semana: number;
-  inserido_em: Date;
+  id_semana: string;
+  inserido_em: string;
   id: string;
+  status: string;
+  cor: string;
+  DataTime: Timestamp;
 }
 
 export interface FornecedorProps {
