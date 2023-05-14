@@ -395,9 +395,6 @@ A exclusão só será executada quando for confirmado as alterações através d
 
     const q = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
 
-
-
-
     const unsub = onSnapshot(q, (querySnapshot) => {
       const data = querySnapshot.docs.map(doc => {
 
@@ -443,7 +440,13 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   async function AtualizaSupabase() {
 
-    const semanaRef = collection(db, "semana");
+    const { data: semanaDel, error } = await supabase
+      .from('semana')
+      .delete()
+      .gte('data_', moment(subDays(semanaAtual, 5)).format('YYYY-MM-DD'))
+
+    const semanaRef = query(collection(db, "semana"), where("DataTime", ">=", subDays(semanaAtual, 5)));
+    //  const semanaRef = collection(db, "semana");
     const querysemana = await getDocs(semanaRef);
 
     querysemana.docs.map(async (item) => {
@@ -452,10 +455,10 @@ A exclusão só será executada quando for confirmado as alterações através d
         .from('semana')
         .upsert([{
 
-          id_semana: item.id,
+          id_semana: item.data().id_semana,
           id_caixa: item.data().id_caixa,
           inserido_em: moment(item.data().inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id: item.data().id_semana,
+          id: item.id,
           ativo: item.data().ativo,
           status: item.data().status,
           cor: item.data().cor,
@@ -464,26 +467,28 @@ A exclusão só será executada quando for confirmado as alterações através d
 
         }])
 
-    })
+      const historicoRef = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", item.data().id_semana));
 
-    const historicoRef = collection(db, "historicoStatus");
-    const queryHistorico = await getDocs(historicoRef);
+      //const historicoRef = collection(db, "historicoStatus");
+      const queryHistorico = await getDocs(historicoRef);
 
-    queryHistorico.docs.map(async (item) => {
+      queryHistorico.docs.map(async (item) => {
 
-      const { data: DataHistorico, error } = await supabase
-        .from('historicoStatus')
-        .upsert([{
+        const { data: DataHistorico, error } = await supabase
+          .from('historicoStatus')
+          .upsert([{
 
-          id: item.id,
-          id_HistóricoSemana: item.data().id_HistóricoSemana,
-          id_caixa: item.data().id_caixa,
-          status: item.data().status,
-          local: item.data().local,
-          data: moment(item.data().data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          hora: item.data().hora
+            id: item.id,
+            id_HistóricoSemana: item.data().id_HistóricoSemana,
+            id_caixa: item.data().id_caixa,
+            status: item.data().status,
+            local: item.data().local,
+            data: moment(item.data().data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+            hora: item.data().hora
 
-        }])
+          }])
+      })
+
     })
 
     const caixaRef = collection(db, "caixa");
@@ -524,23 +529,25 @@ A exclusão só será executada quando for confirmado as alterações através d
         }])
     })
 
-const etapaRef = collection(db, "ordemProceso");
-const etapafornecedor = await getDocs(etapaRef);
+    const etapaRef = collection(db, "ordemProceso");
+    const etapafornecedor = await getDocs(etapaRef);
 
-etapafornecedor.docs.map(async (item) => {
+    etapafornecedor.docs.map(async (item) => {
 
-  const { data: Datafornecedor, error } = await supabase
-    .from('oredemProcesso')
-    .upsert([{
+      const { data: Datafornecedor, error } = await supabase
+        .from('oredemProcesso')
+        .upsert([{
 
-      id: item.id,
-      id_local: item.data().id_local,
-      id_status: item.data().id_status,
-      nomeLocal: item.data().nomeLocal,
-      nomeStatus: item.data().nomeStatus
+          id: item.id,
+          id_local: item.data().id_local,
+          id_status: item.data().id_status,
+          nomeLocal: item.data().nomeLocal,
+          nomeStatus: item.data().nomeStatus
 
-    }])
-})
+        }])
+    })
+    
+    menssagem('Os dados foram sicronizados com o qlik!', false)
 
   }
 
@@ -583,10 +590,10 @@ etapafornecedor.docs.map(async (item) => {
         Confirmar
       </button>
 
-      <button onClick={AtualizaSupabase}>teste</button>
+      <button style={{ marginLeft: 30, width: 160 }} onClick={AtualizaSupabase}>Sincronizar</button>
     </>
   );
 };
-// <button onClick={atualizaSupabase} >teste</button>
+
 export default Table;
 
