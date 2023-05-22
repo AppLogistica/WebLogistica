@@ -275,14 +275,10 @@ A exclusão só será executada quando for confirmado as alterações através d
         dados.map(async id_fornec => {
 
           let dataDia = dia.replaceAll('/', '')
-
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
-
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
-
           const docRef = doc(db, "semana", auxSemana);
           const docSnap = await getDoc(docRef);
-
           const idcaixa = docSnap.data().id_caixa;
           const idsemana = docSnap.data().id_semana;
 
