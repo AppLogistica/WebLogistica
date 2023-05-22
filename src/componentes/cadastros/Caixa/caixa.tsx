@@ -72,7 +72,7 @@ const CadCaixa = () => {
           }
         });
 
-        if (count === 0) {
+        if(count === 0) {
           salvaCaixa()
         }
 
@@ -88,7 +88,7 @@ const CadCaixa = () => {
   async function salvaCaixa() {
     let Nnome = parseInt(nome);
     try {
-
+ 
       const docRef = await setDoc(doc(db, "caixa", `${Nnome}`), {
         Latitude: null,
         Longitude: null,
@@ -149,24 +149,9 @@ const CadCaixa = () => {
   async function excluir() {
 
     event.preventDefault();
-
     if (codigo) {
 
-      const caixaRef = collection(db, "caixa");
-      const q = query(caixaRef, where('livre', '==', true));
-
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) { 
-
-        const confirmarExclusao = window.confirm('A caixa não está livre, libere ela antes de excluir');
-        if(!confirmarExclusao) {
-          return;
-        }
-
-      }
-
-      const confirmarExclusao = window.confirm('Tem certeza que deseja excluir este caixa?');
+      const confirmarExclusao = window.confirm('Tem certeza que deseja excluir este fornecedor?');
 
       if (confirmarExclusao) {
         try {
