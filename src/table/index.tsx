@@ -55,7 +55,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [NovaSemana, setNovaSemana] = useState<semanaProps[]>([])
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
-    addDays(semanaAtual, i)
+    addDays(new Date( dayjs(semanaAtual, 'DD/MM/YYYY').locale('pt-br').startOf('week').add(1, 'day').toDate()), i)
   );
 
   const SemanaAnterior = () => {
@@ -553,7 +553,7 @@ A exclusão só será executada quando for confirmado as alterações através d
       <div className="topTable">
 
         <button onClick={SemanaAnterior}>Semana Anterior</button>
-
+        <div style={{fontSize: 20}}>{dayjs(semanaAtual).format('DD/MM/YYYY')}</div>
         <button onClick={SemanaSeguinte}>Próxima Semana</button>
       </div>
 
