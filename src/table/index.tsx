@@ -553,7 +553,6 @@ A exclusão só será executada quando for confirmado as alterações através d
       <div className="topTable">
 
         <button onClick={SemanaAnterior}>Semana Anterior</button>
-        <div style={{fontSize: 20}}>{dayjs(semanaAtual).format('DD/MM/YYYY')}</div>
         <button onClick={SemanaSeguinte}>Próxima Semana</button>
       </div>
 
