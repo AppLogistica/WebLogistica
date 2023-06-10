@@ -439,7 +439,7 @@ A exclusão só será executada quando for confirmado as alterações através d
     const { data: semanaDel, error } = await supabase
       .from('semana')
       .delete()
-      .gte('data_', moment(subDays(new Date('2023-01-01'), 5)).format('YYYY-MM-DD'))
+      .gte('data_', moment(subDays(new Date('1900-01-01'), 5)).format('YYYY-MM-DD'))
 
     const semanaRef = query(collection(db, "semana")/*, where("DataTime", ">=", subDays(semanaAtual, 5))*/);
     //  const semanaRef = collection(db, "semana");
