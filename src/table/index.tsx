@@ -43,7 +43,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const [semanaAtualAux, setSemanaAtualAux] = useState(new Date());
   const [datateste, setDatateste] = useState(new Date());
-  const [semanaAtual, setSemanaAtual] = useState(new Date( dayjs(datateste, 'DD/MM/YYYY').locale('pt-br').startOf('week').toDate()));
+  const [semanaAtual, setSemanaAtual] = useState(new Date( dayjs(datateste, 'DD/MM/YYYY').locale('pt-br').startOf('week').add(1, 'day').toDate()));
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({});
   const [dadosNovos, setDadosNovos] = useState<DadosSemana>({})
   const [excluir, setExcluir] = useState<DadosSemana>({})
