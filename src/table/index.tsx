@@ -40,8 +40,10 @@ interface semanaProps {
 }
 
 const Table: React.FC<TableProps> = ({ fornec }) => {
-  const [semanaAtual, setSemanaAtual] = useState(new Date());
-  const [semanaAtualAux, setSemanaAtualAux] = useState(new Date())
+
+  const [semanaAtualAux, setSemanaAtualAux] = useState(new Date());
+  const [datateste, setDatateste] = useState(new Date());
+  const [semanaAtual, setSemanaAtual] = useState(new Date( dayjs(datateste, 'DD/MM/YYYY').locale('pt-br').startOf('week').toDate()));
   const [dadosSemana, setDadosSemana] = useState<DadosSemana>({});
   const [dadosNovos, setDadosNovos] = useState<DadosSemana>({})
   const [excluir, setExcluir] = useState<DadosSemana>({})
@@ -55,7 +57,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [NovaSemana, setNovaSemana] = useState<semanaProps[]>([])
 
   const DiasSemana = Array.from({ length: 8 }, (_, i) =>
-    addDays(new Date( dayjs(semanaAtual, 'DD/MM/YYYY').locale('pt-br').startOf('week').add(1, 'day').toDate()), i)
+    addDays(/*new Date( dayjs(*/semanaAtual/*, 'DD/MM/YYYY').locale('pt-br').startOf('week').toDate())*/, i)
   );
 
   const SemanaAnterior = () => {
@@ -90,7 +92,7 @@ A exclusão só será executada quando for confirmado as alterações através d
   ) => {
 
     //alert(fornecedorId)
-
+    
     setDadosSemana((prevState) => ({
       ...prevState,
       [data]: checked
@@ -129,6 +131,7 @@ A exclusão só será executada quando for confirmado as alterações através d
           : [...(prevState[data] || []), fornecedorId,]
       }));
     }
+
   };
 
   const renderTableHeader = () => {
@@ -208,7 +211,7 @@ A exclusão só será executada quando for confirmado as alterações através d
           <tr key={fornecedor.id_fornecedor}>
             <td>{fornecedor.id_fornecedor}</td>
             <td>{fornecedor.nome}</td>
-            {DiasSemana.map((day) => (
+            { DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
                 <div
                   style={{
