@@ -32,6 +32,7 @@ export interface FornecedorProps {
   id_fornecedor: number;
   nome: string;
   cidade: string;
+  ativo: boolean;
 }
 
 export function Main() {
@@ -42,7 +43,9 @@ export function Main() {
 
     async function carregaFornecedor() {
 
-      const unsub = onSnapshot(collection(db, "fornecedor"), (querySnapshot) => {
+      const q = query(collection(db, "fornecedor"), where("ativo", "==", true));
+
+      const unsub = onSnapshot(q, (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as FornecedorProps);
         setFornecedor(data);
       });

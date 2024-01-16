@@ -14,6 +14,7 @@ const CadastroFornecedor = () => {
   const [codigo, setCodigo] = useState('');
   const [cidade, setCidade] = useState('');
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
+  const [ativo, setAtivo] = useState<boolean | null>(true);
 
   useEffect(() => {
 
@@ -59,7 +60,8 @@ const CadastroFornecedor = () => {
       const docRef = await setDoc(doc(db, "fornecedor", `${codigo}`), {
         id_fornecedor: codigo,
         nome: nome.toUpperCase(),
-        cidade: cidade.toUpperCase()
+        cidade: cidade.toUpperCase(),
+        ativo: ativo
       });
       menssagem('Dados salvos com sucesso!', false)
       console.log("Document written with ID: ", docRef);
@@ -80,8 +82,10 @@ const CadastroFornecedor = () => {
     // setCnpj(fornec.cnpj);
     // setEmail(fornec.email !== null ? fornec.email : "");
     setCodigo(`${fornec.id_fornecedor}`);
- 
+    setAtivo(fornec.ativo);
     setCidade(fornec.cidade !== undefined ? fornec.cidade : "")
+
+ 
   }
 
   const num = selectedRow;
@@ -89,15 +93,18 @@ const CadastroFornecedor = () => {
   const renderTable = () => {
 
     return (
-      <table className='tableForm'>
+      <div style={{ overflow: 'auto', maxHeight: '800px', width: '200%' }}>
+      <table>
         <thead className='headTable'>
           <tr>
             <th id='thFornec'>Código</th>
-            <th>Nome</th>
-            <th>Cidade</th>
+            <th id='thNome'>Nome</th>
+            <th id='thCidade'>Cidade</th>
+            <th id='thAtivo'>Ativo</th>
           </tr>
         </thead>
-        <tbody className='body'>
+        <tbody style={{ maxHeight: '250px', overflowY: 'auto' }}>
+          
           {sortedData.map((fornecedor, index) => (
             <tr key={index} onClick={() => handleTableRowClick(fornecedor)}
               style={{ backgroundColor: `${fornecedor.id_fornecedor}` === codigo ? '#363636' : '' }}>
@@ -105,13 +112,14 @@ const CadastroFornecedor = () => {
               <td>{fornecedor.id_fornecedor}</td>
               <td>{fornecedor.nome}</td>
               <td>{fornecedor.cidade}</td>
+              <td > <input type="checkbox" id="ativo" checked={fornecedor.ativo}/></td >
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     )
   }
-
+//onChange={e => setAtivo(e.target.checked)} 
   async function excluir() {
 
     event.preventDefault();
@@ -129,12 +137,13 @@ const CadastroFornecedor = () => {
           setEmail("");
           setCidade("");
           setSelectedRow(null);
+          setAtivo(true);
           menssagem('Dados excluidos com sucesso!', false);
         } catch (error) {
           menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
         }
       } else {
-        console.log('errou');
+        console.log('erro');
         return
       }
     }
@@ -143,7 +152,7 @@ const CadastroFornecedor = () => {
   return (
     <>
       <div><Toaster /></div>
-      <div className='divForm'>
+      <div className='divForm' >
 
         {renderTable()}
 
@@ -154,15 +163,19 @@ const CadastroFornecedor = () => {
           <label htmlFor="nome">Nome</label>
           <input type="text" id="nome" value={nome.toUpperCase()} onChange={e => setNome(e.target.value)} />
 
-          <label htmlFor="cnpj">Cidade</label>
-          <input type="text" id="cnpj" value={cidade.toUpperCase()} onChange={e => setCidade(e.target.value)} />
+          <label htmlFor="cidade">Cidade</label>
+          <input type="text" id="cidade" value={cidade.toUpperCase()} onChange={e => setCidade(e.target.value)} />
 
+          <label htmlFor="ativo">Ativo</label>
+
+          <div> <input type="checkbox" id="ativo" checked={ativo} onChange={e => setAtivo(e.target.checked)} style={{ width: '25px'}}/></div>
+         
           <div className='botoesFornec'>
             <button type="submit">Cadastrar</button>
             <button onClick={excluir} style={{ background: '#9c2c2c', color: 'white' }}>Excluir</button>
           </div>
 
-          <button className='botoesEmail'
+          <button className='botoes'
             type="button" onClick={() => {
               document.getElementById("codigo").focus();
               setNome('');
@@ -170,6 +183,7 @@ const CadastroFornecedor = () => {
               setEmail('');
               setCodigo('');
               setCidade('');
+              setAtivo(true);
             }}>Novo</button>
         </form>
       </div>
