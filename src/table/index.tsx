@@ -56,16 +56,16 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
   const [NovaSemana, setNovaSemana] = useState<semanaProps[]>([])
 
-  const DiasSemana = Array.from({ length: 8 }, (_, i) =>
+  const DiasSemana = Array.from({ length: 7 }, (_, i) =>
     addDays(/*new Date( dayjs(*/semanaAtual/*, 'DD/MM/YYYY').locale('pt-br').startOf('week').toDate())*/, i)
   );
 
   const SemanaAnterior = () => {
-    setSemanaAtual(subDays(semanaAtual, 8));
+    setSemanaAtual(subDays(semanaAtual, 7));
   };
 
   const SemanaSeguinte = () => {
-    setSemanaAtual(addDays(semanaAtual, 8));
+    setSemanaAtual(addDays(semanaAtual, 7));
   };
 
   async function ConfirmaExcluir(auxSemana: string) {
