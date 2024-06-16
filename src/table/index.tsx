@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { format as formatFns, addDays, subDays } from "date-fns";
+import { format as formatFns, addDays, subDays, startOfWeek } from "date-fns";
 import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc, updateDoc, Timestamp } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -53,11 +53,12 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
   const [pronto, setPronto] = useState('');
+  const [filtroFornecedor, setFiltroFornecedor] = useState('');
 
   const [NovaSemana, setNovaSemana] = useState<semanaProps[]>([])
 
-  const DiasSemana = Array.from({ length: 7 }, (_, i) =>
-    addDays(/*new Date( dayjs(*/semanaAtual/*, 'DD/MM/YYYY').locale('pt-br').startOf('week').toDate())*/, i)
+  const DiasSemana = Array.from({ length: 5 }, (_, i) =>
+    addDays(startOfWeek(semanaAtual), i + 1)
   );
 
   const SemanaAnterior = () => {
@@ -136,7 +137,7 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   const renderTableHeader = () => {
     return (
-      <thead>
+      <thead style={{ position: "sticky", top: 0, backgroundColor: "#242424" }}>
         <tr>
           <th>Código</th>
           <th>Fornecedor</th>
@@ -207,11 +208,15 @@ A exclusão só será executada quando for confirmado as alterações através d
   const renderTableBody = () => {
     return (
       <tbody className="topoTabela">
-        {fornec.map((fornecedor) => (
-          <tr key={fornecedor.id_fornecedor}>
-            <td>{fornecedor.id_fornecedor}</td>
-            <td>{fornecedor.nome}</td>
-            { DiasSemana.map((day) => (
+        {fornec
+          .filter((fornecedor) =>
+            fornecedor.nome.toLowerCase().includes(filtroFornecedor.toLowerCase())
+          )
+          .map((fornecedor) => (
+            <tr key={fornecedor.id_fornecedor}>
+              <td>{fornecedor.id_fornecedor}</td>
+              <td>{fornecedor.nome}</td>
+              {DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
                 <div
                   style={{
@@ -554,7 +559,6 @@ A exclusão só será executada quando for confirmado as alterações através d
     <>
       <div><Toaster /></div>
       <div className="topTable">
-
         <button onClick={SemanaAnterior}>Semana Anterior</button>
         <button onClick={SemanaSeguinte}>Próxima Semana</button>
       </div>
@@ -577,6 +581,16 @@ A exclusão só será executada quando for confirmado as alterações através d
         <h5 style={{ marginLeft: 5 }}>Fabrica X CHEIA</h5>
         <div style={{ height: '15px', width: '15px', borderRadius: 50, backgroundColor: '#f39c12', marginLeft: 20 }}></div>
         <h5 style={{ marginLeft: 5 }}>Descarregado</h5>
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <input
+          type="text"
+          placeholder="Pesquisar fornecedor..."
+          value={filtroFornecedor}
+          onChange={(e) => setFiltroFornecedor(e.target.value)}
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '15%' }}
+        />
       </div>
 
       <table>
