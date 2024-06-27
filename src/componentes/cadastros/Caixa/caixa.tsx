@@ -205,7 +205,7 @@ const CadCaixa = () => {
           <ComboBox />
 
           <div className='botoesFornec'>
-            <button type="submit">Cadastrar</button>
+            <button style={{backgroundColor: '#008000', color: 'white',}} type="submit">Cadastrar</button>
             <button onClick={excluir} style={{ background: '#9c2c2c', color: 'white' }}>Excluir</button>
           </div>
 
@@ -215,7 +215,7 @@ const CadCaixa = () => {
               setNome('');
               setLivre(true);
               setCodigo('');
-            }}>Novo</button>
+            }} style={{backgroundColor: '#ffff00', color: 'black',}}>Novo</button>
         </form>
       </div>
     </>

@@ -216,8 +216,8 @@ const CadastroEmail = () => {
           <input type="Password" id='senha' value={senha} onChange={e => setSenha(e.target.value)} />
 
           <div className='botoesEmail'>
-            <button type="submit">Cadastrar</button>
-
+            <button style={{backgroundColor: '#008000', color: 'white',}} type="submit">Cadastrar</button>
+           
            
 
             <button
@@ -227,7 +227,7 @@ const CadastroEmail = () => {
                 setCodigo('')
                 setNovoEmail('');
                 setSenha('');
-              }}>Novo</button>
+              }}  style={{backgroundColor: '#ffff00', color: 'black',}} >Novo</button>
           </div>
         </form>
       </div>

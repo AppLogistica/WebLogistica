@@ -114,12 +114,12 @@ const CadastroFornecedor = () => {
       <div><Toaster /></div>
   
       <div style={{ marginBottom: 10 }}>
-        <input
+      <input
           type="text"
-          placeholder="Pesquisar fornecedor..."
+          placeholder="PESQUISAR FORNECEDOR..."
           value={filtroFornecedor}
           onChange={(e) => setFiltroFornecedor(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '15%' }}
+          style={{ padding: '8px', borderRadius: '4px', border: '3px solid #008080', width: '22%', height: '40px',fontStyle: 'italic', fontWeight: 'bold', }}
         />
       </div>
   
@@ -158,7 +158,7 @@ const CadastroFornecedor = () => {
           <label htmlFor="ativo">Ativo</label>
           <div><input type="checkbox" id="ativo" checked={ativo} onChange={e => setAtivo(e.target.checked)} style={{ width: '25px' }} /></div>
           <div className='botoesFornec'>
-            <button type="submit">Cadastrar</button>
+            <button style={{backgroundColor: '#008000', color: 'white',}} type="submit">Cadastrar</button>
             <button onClick={excluir} style={{ background: '#9c2c2c', color: 'white' }}>Excluir</button>
           </div>
           <button className='botoes' type="button" onClick={() => {
@@ -169,7 +169,7 @@ const CadastroFornecedor = () => {
             setCodigo('');
             setCidade('');
             setAtivo(true);
-          }}>Novo</button>
+          }} style={{backgroundColor: '#ffff00', color: 'black',}}>Novo</button>
         </form>
       </div>
     </>

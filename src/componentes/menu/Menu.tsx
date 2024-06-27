@@ -9,13 +9,15 @@ export function Menu() {
                 }}>
                 <div
                     style={{
-                        backgroundColor: 'white',
-                        width: "140%",
+                        width: "200%",
                         height: "140%",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        borderRadius: "8px"
+                        borderRadius: "8px",
+                        backgroundColor: '#808080', 
+                        color: 'white',  
+                        border: '2px solid #FFFFFF',
                     }}>Inicio</div></a>
 
             <a href="/email"
@@ -26,12 +28,15 @@ export function Menu() {
                 <div
                     style={{
                         backgroundColor: 'white',
-                        width: "140%",
+                        width: "200%",
                         height: "140%",
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        borderRadius: "8px"
+                        borderRadius: "8px",
+                        backgroundColor: '#808080', 
+                        color: 'white',  
+                        border: '2px solid #FFFFFF',
                     }}>Email</div> </a>
 
             <a href="/fornecedores"
@@ -46,7 +51,10 @@ export function Menu() {
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    borderRadius: "8px"
+                    borderRadius: "8px",
+                    backgroundColor: '#808080', 
+                    color: 'white',  
+                    border: '2px solid #FFFFFF',
                 }}>Fornecedores</div> </a>
 
             <a href="/caixa"
@@ -56,12 +64,15 @@ export function Menu() {
                 }}>
                 <div style={{
                     backgroundColor: 'white',
-                    width: "140%",
+                    width: "200%",
                     height: "140%",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    borderRadius: "8px"
+                    borderRadius: "8px",
+                    backgroundColor: '#808080', 
+                    color: 'white',  
+                    border: '2px solid #FFFFFF',
                 }}>Caixa</div> </a>
 
         </div>
