@@ -137,22 +137,33 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   const renderTableHeader = () => {
     return (
-      <thead style={{ position: "sticky", top: 0, backgroundColor: "#242424" }}>
-        <tr>
-          <th>Código</th>
-          <th>Fornecedor</th>
-          {DiasSemana.map((day) => (
-            <th key={formatFns(day, "dd/MM/yyyy")}>
 
-              <div>
-                {dayjs(day).locale('pt-br').format('dddd')}
-              </div>
-              {formatFns(day, "dd/MM/yyyy")}
+<thead style={{ position: "sticky", top: '50px', backgroundColor: "#242424", color: "white", }}>
+<tr>
+        <th>Código</th>
+        <th>Fornecedor</th>
+        {DiasSemana.map((day) => (
+          <th key={dayjs(day).format('DD/MM/YYYY')} >
+            <div>
+              {dayjs(day).locale('pt-br').format('dddd')}
+            </div>
+            {dayjs(day).format('DD/MM/YYYY')}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    
 
-            </th>
-          ))}
-        </tr>
-      </thead>
+
+
+
+    
+
+  
+
+    
+
+    
     );
   };
 
@@ -207,14 +218,14 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   const renderTableBody = () => {
     return (
-      <tbody className="topoTabela">
+      <tbody className="topoTabela" >
         {fornec
           .filter((fornecedor) =>
             fornecedor.nome.toLowerCase().includes(filtroFornecedor.toLowerCase())
           )
           .map((fornecedor) => (
-            <tr key={fornecedor.id_fornecedor}>
-              <td>{fornecedor.id_fornecedor}</td>
+            <tr key={fornecedor.id_fornecedor} >
+              <td >{fornecedor.id_fornecedor}</td>
               <td>{fornecedor.nome}</td>
               {DiasSemana.map((day) => (
               <td key={formatFns(day, "dd/MM/yyyy")}>
@@ -558,9 +569,11 @@ A exclusão só será executada quando for confirmado as alterações através d
   return (
     <>
       <div><Toaster /></div>
-      <div className="topTable">
-        <button onClick={SemanaAnterior}>Semana Anterior</button>
-        <button onClick={SemanaSeguinte}>Próxima Semana</button>
+      <div className="topTable" >
+        <button onClick={SemanaAnterior}  style={{ backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}>Semana Anterior</button>
+
+        <button onClick={SemanaSeguinte} style={{ backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}>Próxima Semana</button>
+        
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: 20 }}>
@@ -583,26 +596,25 @@ A exclusão só será executada quando for confirmado as alterações através d
         <h5 style={{ marginLeft: 5 }}>Descarregado</h5>
       </div>
 
-      <div style={{ marginBottom: 10 }}>
-        <input
+
+      <div style={{position: 'sticky', top:-20 , marginBottom: -75, backgroundColor: '#242424', border: '20px solid #242424',}}>
+
+
+      <input
           type="text"
-          placeholder="Pesquisar fornecedor..."
+          placeholder="PESQUISAR FORNECEDOR..."
           value={filtroFornecedor}
           onChange={(e) => setFiltroFornecedor(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc', width: '15%' }}
+          style={{ padding: '8px', borderRadius: '4px', border: '3px solid #008080', width: '22%', height: '40px',fontStyle: 'italic', fontWeight: 'bold', }}
         />
       </div>
-
+   
+      <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button>
+      <button style={{ width: 160, position: "sticky", top: 3, left: '70%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma"onClick={addSemana} onClick={AtualizaSupabase} >Confirmar</button> 
       <table>
         {renderTableHeader()}
         {renderTableBody()}
       </table>
-
-      <button className="botaoConfirma" onClick={addSemana} style={{ alignSelf: "flex-start" }}>
-        Confirmar
-      </button>
-
-      <button style={{ marginLeft: 30, width: 160 }} onClick={AtualizaSupabase}>Sincronizar</button>
     </>
   );
 };
