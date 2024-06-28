@@ -15,7 +15,7 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#808080', 
+                        backgroundColor: '#8e00a8', 
                         color: 'white',  
                         border: '2px solid #FFFFFF',
                     }}>Inicio</div></a>
@@ -34,7 +34,7 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#808080', 
+                        backgroundColor: '#8e00a8', 
                         color: 'white',  
                         border: '2px solid #FFFFFF',
                     }}>Email</div> </a>
@@ -52,7 +52,7 @@ export function Menu() {
                     justifyContent: "center",
                     alignItems: "center",
                     borderRadius: "8px",
-                    backgroundColor: '#808080', 
+                    backgroundColor: '#8e00a8', 
                     color: 'white',  
                     border: '2px solid #FFFFFF',
                 }}>Fornecedores</div> </a>
@@ -70,7 +70,7 @@ export function Menu() {
                     justifyContent: "center",
                     alignItems: "center",
                     borderRadius: "8px",
-                    backgroundColor: '#808080', 
+                    backgroundColor: '#8e00a8', 
                     color: 'white',  
                     border: '2px solid #FFFFFF',
                 }}>Caixa</div> </a>

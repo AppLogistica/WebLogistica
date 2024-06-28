@@ -119,7 +119,7 @@ const CadastroFornecedor = () => {
           placeholder="PESQUISAR FORNECEDOR..."
           value={filtroFornecedor}
           onChange={(e) => setFiltroFornecedor(e.target.value)}
-          style={{ padding: '8px', borderRadius: '4px', border: '3px solid #008080', width: '22%', height: '40px',fontStyle: 'italic', fontWeight: 'bold', }}
+          style={{ padding: '8px', borderRadius: '4px', border: '3px solid #685da4', width: '22%', height: '40px',fontStyle: 'italic', fontWeight: 'bold', }}
         />
       </div>
   
