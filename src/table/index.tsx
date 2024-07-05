@@ -609,12 +609,17 @@ A exclusão só será executada quando for confirmado as alterações através d
         />
       </div>
    
-      <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button>
-      <button style={{ width: 160, position: "sticky", top: 3, left: '70%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma"onClick={addSemana} onClick={AtualizaSupabase} >Confirmar</button> 
+    <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button>
+      <button style={{ width: 160, position: "sticky", top: 3, left: '70%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma" onClick={addSemana} >Confirmar</button> 
+      
       <table>
         {renderTableHeader()}
         {renderTableBody()}
       </table>
+
+     
+
+      
     </>
   );
 };
