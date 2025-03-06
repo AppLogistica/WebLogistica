@@ -202,11 +202,10 @@ A exclusão só será executada quando for confirmado as alterações através d
     if (corAtual === 'gray' || corAtual == '#7fdec7') {
       try {
         const docRef = await updateDoc(doc(db, "semana", semanaSel), {
-
           cor: novaCor
-
         });
 
+        await AtualizaSupabase();
         console.log("Document written with ID: ", docRef);
 
       } catch (e) {
@@ -287,84 +286,61 @@ A exclusão só será executada quando for confirmado as alterações através d
   };
 
   async function addSemana() {
-
+    // Processa as exclusões
     Object.entries(excluir).forEach(([dia, dados]) => {
-
       if (dados.length > 0) {
         dados.map(async id_fornec => {
-
-          let dataDia = dia.replaceAll('/', '')
+          let dataDia = dia.replaceAll('/', '');
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
           const docRef = doc(db, "semana", auxSemana);
           const docSnap = await getDoc(docRef);
-          const idcaixa = docSnap.data().id_caixa;
-          const idsemana = docSnap.data().id_semana;
-
+          const idcaixa = docSnap.data()?.id_caixa;
+          const idsemana = docSnap.data()?.id_semana;
+  
           try {
-
             if (idcaixa) {
-
-              try {
-                const docRef = await setDoc(doc(db, "caixa", `${idcaixa}`), {
-                  Latitude: null,
-                  Longitude: null,
-                  id_local: 1,
-                  id_status: 1,
-                  livre: true,
-                  nome: idcaixa
-
-                });
-                console.log("Document written with ID: ", docRef);
-
-
-              } catch (e) {
-                console.error("Error adding document: ", e);
-                return
-              }
+              await setDoc(doc(db, "caixa", `${idcaixa}`), {
+                Latitude: null,
+                Longitude: null,
+                id_local: 1,
+                id_status: 1,
+                livre: true,
+                nome: idcaixa
+              });
             }
-
+  
             const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
-
             const querySnapshot = await getDocs(q);
-            querySnapshot.forEach(async (documento) => {
-
+            querySnapshot.docs.forEach(async (documento) => {
               await deleteDoc(doc(db, 'historicoStatus', documento.id));
             });
-
+  
             await deleteDoc(doc(db, 'semana', auxSemana));
-
+            // Aqui você pode já chamar AtualizaSupabase() se desejar que cada exclusão sincronize individualmente
+            // await AtualizaSupabase();
           } catch (error) {
-            menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
+            //menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true);
           }
-        })
+        });
       }
-    })
-
-    setExcluir({});
-
+    });
+  
+    // Processa as adições
     Object.entries(dadosNovos).forEach(([dia, dados]) => {
-
       if (dados.length > 0) {
         dados.map(async id_fornec => {
-
-
-          let dataDia = dia.replaceAll('/', '')
-
+          let dataDia = dia.replaceAll('/', '');
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
-
           const docRef = doc(db, "semana", auxSemana);
           const docSnap = await getDoc(docRef);
-
           const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
           const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
-
-
+  
           if (!docSnap.exists()) {
-
             try {
-              const docRef = await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
+              await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
                 id_semana: `${dataDia}.${id_fornecFormat}`,
                 id_fornecedor: id_fornec,
                 id_caixa: null,
@@ -374,22 +350,22 @@ A exclusão só será executada quando for confirmado as alterações através d
                 status: '',
                 cor: 'gray',
                 DataTime: dataTemp
-
               });
-              console.log("Document written with ID: ", docRef);
-
             } catch (e) {
-              console.error("Error adding document: ", e);
-              menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true)
-              return
+              //console.error("Error adding document: ", e);
+              //menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true);
             }
           }
-        })
+        });
       }
     });
-    menssagem('Dados salvos com sucesso!', false)
+  
+    menssagem('Dados salvos com sucesso!', false);
     setDadosNovos({});
     iniciaNovoExcluir();
+  
+    // Chama a função de sincronização com o Supabase ao final
+    await AtualizaSupabase();
   }
 
   async function carregaSemana() {
@@ -505,65 +481,7 @@ A exclusão só será executada quando for confirmado as alterações através d
       })
 
     })
-
-    const caixaRef = collection(db, "caixa");
-    const querycaixa = await getDocs(caixaRef);
-
-    querycaixa.docs.map(async (item) => {
-
-      const { data: DataCaixa, error } = await supabase
-        .from('caixa')
-        .upsert([{
-
-          id_caixa: item.id,
-          nome: `${item.id}`,
-          livre: item.data().livre,
-          id_status: item.data().id_status,
-          id_local: item.data().id_local,
-          Latitude: item.data().Latitude,
-          Longitude: item.data().Longitude,
-          etapa: item.data().etapa
-
-        }])
-
-    })
-
-    const fornecedorRef = collection(db, "fornecedor");
-    const queryfornecedor = await getDocs(fornecedorRef);
-
-    queryfornecedor.docs.map(async (item) => {
-
-      const { data: Datafornecedor, error } = await supabase
-        .from('fornecedor')
-        .upsert([{
-
-          id_fornecedor: item.id,
-          nome: item.data().nome,
-          cidade: item.data().cidade
-
-        }])
-    })
-
-    const etapaRef = collection(db, "ordemProceso");
-    const etapafornecedor = await getDocs(etapaRef);
-
-    etapafornecedor.docs.map(async (item) => {
-
-      const { data: Datafornecedor, error } = await supabase
-        .from('oredemProcesso')
-        .upsert([{
-
-          id: item.id,
-          id_local: item.data().id_local,
-          id_status: item.data().id_status,
-          nomeLocal: item.data().nomeLocal,
-          nomeStatus: item.data().nomeStatus
-
-        }])
-    })
-    
-    menssagem('Os dados foram sicronizados com o qlik!', false)
-
+    menssagem('Dados Sincronizados!', false)
   }
 
   return (

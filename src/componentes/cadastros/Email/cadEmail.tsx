@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import { auth as authAdm }  from "firebase-admin"
+import { AtualizaSupabase } from '../../../supabase/syncSupabase';
 
 import { menssagem } from '../../menssagem';
 import { useAuth } from '../../../context/AuthContext';
@@ -15,7 +16,6 @@ interface typeemail {
   uid: string;
 }
 
-
 const CadastroEmail = () => {
 
   const { auth } = useAuth();
@@ -25,7 +25,6 @@ const CadastroEmail = () => {
   const [novoEmail, setNovoEmail] = useState('');
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [senha, setSenha] = useState('');
- // const [uid, setUid] = useState('');
 
   createUserWithEmailAndPassword(auth, novoEmail, senha)
     .then((userCredential) => {
@@ -85,24 +84,20 @@ const CadastroEmail = () => {
       nextCod = sortedData[sortedData.length - 1].id + 1;
     }
 
-
     createUserWithEmailAndPassword(auth, novoEmail, senha)
       .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
-
+        // Chama a função AtualizaSupabase após criar o usuário no Firebase
+        await AtualizaSupabase();
       })
       .catch(async (error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        /// ta tudo bugado o firebase... por isso ta aqui essa parte
         if (errorCode === 'auth/email-already-in-use') {
 
-
-         // const auth = getAuth();
           signInWithEmailAndPassword(auth, novoEmail, senha)
             .then(async (userCredential) => {
-              // Signed in
               const user = userCredential.user;
 
               try {
@@ -111,14 +106,16 @@ const CadastroEmail = () => {
                   email: novoEmail,
                   uid: user.uid
                 });
-                menssagem('Email salvo com sucesso!', false)
+                menssagem('Email salvo com sucesso!', false);
                 console.log("Document written with ID: ", docRef);
 
+                // Chama a função AtualizaSupabase após salvar o email
+                await AtualizaSupabase();
 
               } catch (e) {
-                console.error("Error adding document: ", e);
-                menssagem(`Erro ao salvar! \n ${novoEmail}`, true)
-                return
+                //console.error("Error adding document: ", e);
+                //menssagem(`Erro ao salvar! \n ${novoEmail}`, true);
+                return;
               }
             })
             .catch((error) => {
@@ -127,24 +124,18 @@ const CadastroEmail = () => {
             });
         }
         console.log(errorCode);
-
       });
 
-    setCodigo('')
+    setCodigo('');
     setNovoEmail('');
     setSenha('');
   };
 
   const handleTableRowClick = (ema: typeemail) => {
-
     setSelectedRow(ema.id);
     setCodigo(`${ema.id}`);
     setNovoEmail(ema.email);
- /*   setUid(ema.uid);
-    console.log(ema.uid);
-    console.log(uid);*/
-  
-  }
+  };
 
   const num = selectedRow;
 
@@ -169,11 +160,10 @@ const CadastroEmail = () => {
           ))}
         </tbody>
       </table>
-    )
-  }
+    );
+  };
 
   async function excluir() {
-
     event.preventDefault();
     if (codigo) {
 
@@ -181,22 +171,23 @@ const CadastroEmail = () => {
 
       if (confirmarExclusao) {
 
-        //authAdm().deleteUser('')
-
         try {
-          await deleteDoc(doc(db, 'email', `${novoEmail}`))
+          await deleteDoc(doc(db, 'email', `${novoEmail}`));
 
           setCodigo(null);
           setNovoEmail("");
           setSelectedRow(null);
-          setSenha('')
-          menssagem('Dados excluidos com sucesso!', false);
+          setSenha('');
+
+          // Chama a função AtualizaSupabase após excluir o email
+          await AtualizaSupabase();
+
+          menssagem('Dados excluídos com sucesso!', false);
         } catch (error) {
-          menssagem(`Erro ao salvar! \n ${codigo} ${novoEmail}`, true)
+          //menssagem(`Erro ao salvar! \n ${codigo} ${novoEmail}`, true);
         }
       } else {
-
-        return
+        return;
       }
     }
   }
@@ -217,14 +208,12 @@ const CadastroEmail = () => {
 
           <div className='botoesEmail'>
             <button style={{backgroundColor: '#008000', color: 'white',}} type="submit">Cadastrar</button>
-           
-           
 
             <button
               className='botaonovo'
               type="button" onClick={() => {
                 document.getElementById("email").focus();
-                setCodigo('')
+                setCodigo('');
                 setNovoEmail('');
                 setSenha('');
               }}  style={{backgroundColor: '#ffff00', color: 'black',}} >Novo</button>
@@ -236,5 +225,3 @@ const CadastroEmail = () => {
 };
 
 export default CadastroEmail;
-
-//<button onClick={excluir} style={{ background: '#9c2c2c', color: 'white' }}>Excluir</button>

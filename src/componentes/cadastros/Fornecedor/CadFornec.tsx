@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import db from '../../../firebase/database';
 import { FornecedorProps } from '../../../paginas/main';
 import { menssagem } from '../../menssagem';
+import {syncFornecedorSupabase} from '../../../supabase/syncFornecedorSupabase';
 
 const CadastroFornecedor = () => {
   const [fornecedores, setFornecedores] = useState<FornecedorProps[]>([]);
@@ -55,20 +56,21 @@ const CadastroFornecedor = () => {
     }
 
     try {
-      const docRef = await setDoc(doc(db, "fornecedor", `${codigo}`), {
+      await setDoc(doc(db, "fornecedor", `${codigo}`), {
         id_fornecedor: codigo,
         nome: nome.toUpperCase(),
         cidade: cidade.toUpperCase(),
         ativo: ativo
       });
-      menssagem('Dados salvos com sucesso!', false)
-      console.log("Document written with ID: ", docRef);
-
-
+      menssagem('Dados salvos e sincronizados com sucesso!', false);
+      
+      // Sincroniza com o Supabase
+      await syncFornecedorSupabase();
+      
     } catch (e) {
       console.error("Error adding document: ", e);
-      menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
-      return
+      menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
+      return;
     }
   };
 
@@ -94,9 +96,13 @@ const CadastroFornecedor = () => {
           setCidade("");
           setSelectedRow(null);
           setAtivo(true);
-          menssagem('Dados excluidos com sucesso!', false);
+          menssagem('Dados excluidos e sincronizados com sucesso!', false);
+          
+          // Sincroniza com o Supabase
+          await syncFornecedorSupabase();
+          
         } catch (error) {
-          menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
+          menssagem(`Erro ao excluir! \n ${codigo} ${nome}`, true);
         }
       } else {
         console.log('erro');

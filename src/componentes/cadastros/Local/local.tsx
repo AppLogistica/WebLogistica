@@ -4,6 +4,7 @@ import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, del
 import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { menssagem } from '../../menssagem';
+import { syncLocalSupabase } from '../../../supabase/syncLocalSupabase';
 
 interface propLocal {
   id: string;
@@ -58,10 +59,11 @@ const CadLocal = () => {
       menssagem('Dados salvos com sucesso!', false)
       console.log("Document written with ID: ", docRef);
 
+      await syncLocalSupabase();
 
     } catch (e) {
       console.error("Error adding document: ", e);
-      menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
+      //menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
       return
     }
   };
@@ -117,8 +119,11 @@ const CadLocal = () => {
 
           setSelectedRow(null);
           menssagem('Dados excluidos com sucesso!', false);
+
+          await syncLocalSupabase();
+
         } catch (error) {
-          menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
+          //menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
         }
       } else {
         console.log('errou');

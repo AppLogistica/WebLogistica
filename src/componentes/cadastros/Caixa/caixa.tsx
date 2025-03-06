@@ -4,6 +4,7 @@ import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, del
 import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { menssagem } from '../../menssagem';
+import { AtualizaCaixaSupabase } from "../../../supabase/syncCaixaSupabase";
 
 interface propCaixa {
   id: string;
@@ -22,18 +23,14 @@ const CadCaixa = () => {
   const [livre, setLivre] = useState(true);
   const [codigo, setCodigo] = useState('');
   const [selectedOption, setSelectedOption] = useState('Sim');
-
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
 
   useEffect(() => {
-
     async function carregaCaixa() {
-
       const unsub = onSnapshot(collection(db, "caixa"), (querySnapshot) => {
         const data = querySnapshot.docs.map((doc) => doc.data() as propCaixa);
         setCaixas(data);
       });
-
       return () => {
         unsub();
       };
@@ -55,40 +52,36 @@ const CadCaixa = () => {
     const semanaRef = collection(db, "semana");
     const q = query(semanaRef, where("status", "!=", ""));
 
-    // const q = query(collection(db, "semana"), where("ativo", "==", 'Iniciado'));
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
-      let count = 0
+      let count = 0;
       if (selectedOption === 'sim') {
         querySnapshot.forEach(async (documento) => {
-
           if (`${documento.data().id_caixa}` === codigo) {
             count = 1;
-            window.confirm(`Esse Essa caixa está em uso no processo ${documento.data().id_semana}?\n
+            window.confirm(`Essa caixa está em uso no processo ${documento.data().id_semana}?\n
   Fornecedor: ${`${documento.data().id_fornecedor}`.padStart(2, '0')}
   Data: ${documento.data().data}
   Finalize esse processo no app primeiro ou exclua na aba inicio do web`);
           }
         });
 
-        if(count === 0) {
-          salvaCaixa()
+        if (count === 0) {
+          salvaCaixa();
         }
 
       } else {
-        salvaCaixa()
+        salvaCaixa();
       }
     } else {
-
-      salvaCaixa()
+      salvaCaixa();
     }
   };
 
   async function salvaCaixa() {
     let Nnome = parseInt(nome);
     try {
- 
       const docRef = await setDoc(doc(db, "caixa", `${Nnome}`), {
         Latitude: null,
         Longitude: null,
@@ -96,33 +89,32 @@ const CadCaixa = () => {
         id_status: 1,
         livre: selectedOption.toLocaleLowerCase() === "sim" ? true : false,
         nome: Nnome
-
       });
-      menssagem('Dados salvos com sucesso!', false)
+
+      menssagem('Dados salvos e sincronizados com sucesso!', false);
       console.log("Document written with ID: ", docRef);
-
-
+      
+      // Chama a função AtualizaSupabase após salvar os dados
+      await AtualizaCaixaSupabase();
+      
     } catch (e) {
-      console.error("Error adding document: ", e);
-      menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
-      return
+      // console.error("Error adding document: ", e);
+      // menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
+      return;
     }
   }
 
   const handleTableRowClick = (cai: propCaixa) => {
-
     setSelectedRow(cai.nome);
     setNome(`${cai.nome}`);
     setLivre(cai.livre)
     setSelectedOption(cai.livre ? "Sim" : "Não");
     setCodigo(`${cai.nome}`);
-
   }
 
   const num = selectedRow;
 
   const renderTable = () => {
-
     return (
       <table className='tableForm'>
         <thead className='headTable'>
@@ -135,10 +127,8 @@ const CadCaixa = () => {
           {sortedData.map((caixa, index) => (
             <tr key={index} onClick={() => handleTableRowClick(caixa)}
               style={{ backgroundColor: `${caixa.nome}` === codigo ? '#363636' : '' }}>
-
               <td>{`${caixa.nome}`.padStart(2, "0")}</td>
               <td>{caixa.livre ? "Sim" : "Não"}</td>
-
             </tr>
           ))}
         </tbody>
@@ -147,12 +137,9 @@ const CadCaixa = () => {
   }
 
   async function excluir() {
-
     event.preventDefault();
     if (codigo) {
-
       const confirmarExclusao = window.confirm('Tem certeza que deseja excluir este fornecedor?');
-
       if (confirmarExclusao) {
         try {
           console.log(codigo);
@@ -162,21 +149,23 @@ const CadCaixa = () => {
           setCodigo("");
           setNome("");
           setLivre(true);
-
           setSelectedRow(null);
-          menssagem('Dados excluidos com sucesso!', false);
+          menssagem('Dados excluídos e sincronizados com sucesso!', false);
+          
+          // Chama a função AtualizaSupabase após excluir os dados
+          await AtualizaCaixaSupabase();
+          
         } catch (error) {
-          menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)
+          menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
         }
       } else {
         console.log('errou');
-        return
+        return;
       }
     }
   }
 
   function ComboBox() {
-
     const handleOptionChange = (event) => {
       setSelectedOption(event.target.value);
     }
@@ -193,9 +182,7 @@ const CadCaixa = () => {
     <>
       <div><Toaster /></div>
       <div className='divForm'>
-
         {renderTable()}
-
         <div className='divide'></div>
         <form className='formu' onSubmit={handleSubmit}>
           <label htmlFor="nome">Caixa</label>
