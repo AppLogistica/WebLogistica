@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './styleLocal.css'
 import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, deleteDoc } from "firebase/firestore";
 import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
