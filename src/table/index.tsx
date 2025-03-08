@@ -7,12 +7,17 @@ import "./styles.css";
 import { FornecedorProps, SemanaProps } from "../paginas/main";
 import db from "../firebase/database";
 import { menssagem } from "../componentes/menssagem";
+import { AtualizarCorSemana } from "../supabase/AtualizarCorSemana";
+import { DeleteHistoricoSupabase } from "../supabase/DeleteHistoricoSupabase";
+import { DeleteSemanaSupabase } from "../supabase/DeleteSemanaSupabase";
+import { InsertSemanaSupabase } from "../supabase/InsertSemanaSupabase";
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import { firestore } from "firebase-admin";
 import moment from 'moment';
 import { supabase } from "../supabase/database";
+import { AtualizaCaixaSupabase } from "../supabase/syncCaixaSupabase";
 
 
 export interface TableProps {
@@ -192,8 +197,8 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           cor: novaCor
         });
 
-        await AtualizaSupabase();
-        console.log("Document written with ID: ", docRef);
+        // Atualiza Supabase
+        await AtualizarCorSemana(semanaSel, novaCor);
 
       } catch (e) {
         console.error("Error adding document: ", e);
@@ -295,17 +300,25 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
                 livre: true,
                 nome: idcaixa
               });
+
+              // Atualiza Supabase
+              await AtualizaCaixaSupabase(idcaixa, true, idcaixa)
             }
   
             const q = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", idsemana));
             const querySnapshot = await getDocs(q);
             querySnapshot.docs.forEach(async (documento) => {
               await deleteDoc(doc(db, 'historicoStatus', documento.id));
+
+              // Atualiza Supabase
+              await DeleteHistoricoSupabase(documento.id)
             });
   
             await deleteDoc(doc(db, 'semana', auxSemana));
-            // Aqui você pode já chamar AtualizaSupabase() se desejar que cada exclusão sincronize individualmente
-            // await AtualizaSupabase();
+
+            // Atualizar Supabase
+            await DeleteSemanaSupabase(auxSemana);
+
           } catch (error) {
             //menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true);
           }
@@ -338,6 +351,19 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
                 cor: 'gray',
                 DataTime: dataTemp
               });
+
+              // Atualiza Supabase
+              await InsertSemanaSupabase(
+                `${dataDia}.${id_fornecFormat}`,
+                 null,
+                 formatFns(new Date(), "dd/MM/yyyy"),
+                 `${dataDia}.${id_fornecFormat}`,
+                 'Inativos',
+                 '',
+                 'gray',
+                 dia,
+                 id_fornec
+              );
             } catch (e) {
               //console.error("Error adding document: ", e);
               //menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true);
@@ -350,9 +376,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     menssagem('Dados salvos com sucesso!', false);
     setDadosNovos({});
     iniciaNovoExcluir();
-  
-    // Chama a função de sincronização com o Supabase ao final
-    await AtualizaSupabase();
   }
 
   async function carregaSemana() {

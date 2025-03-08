@@ -3,7 +3,8 @@ import { collection, onSnapshot, setDoc, doc, getDoc, getDocs, query, where, del
 import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { menssagem } from '../../menssagem';
-import { syncLocalSupabase } from '../../../supabase/syncLocalSupabase';
+import { AtualizaLocalSupabase } from '../../../supabase/syncLocalSupabase';
+import { DeleteLocalSupabase } from '../../../supabase/DeleteLocalSupabase';
 
 interface propLocal {
   id: string;
@@ -55,10 +56,12 @@ const CadLocal = () => {
         nome: nome,
         id: codigo
       });
-      menssagem('Dados salvos com sucesso!', false)
-      console.log("Document written with ID: ", docRef);
 
-      await syncLocalSupabase();
+      // Atualiza Supabase
+      await AtualizaLocalSupabase(
+        codigo,
+        nome,
+      );
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -119,7 +122,9 @@ const CadLocal = () => {
           setSelectedRow(null);
           menssagem('Dados excluidos com sucesso!', false);
 
-          await syncLocalSupabase();
+          await DeleteLocalSupabase(
+            codigo,
+          );
 
         } catch (error) {
           //menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true)

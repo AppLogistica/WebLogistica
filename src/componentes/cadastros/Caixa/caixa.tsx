@@ -4,6 +4,7 @@ import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { menssagem } from '../../menssagem';
 import { AtualizaCaixaSupabase } from "../../../supabase/syncCaixaSupabase";
+import { DeleteCaixaSupabase } from '../../../supabase/DeleteCaixaSupabase';
 
 interface propCaixa {
   id: string;
@@ -90,12 +91,13 @@ const CadCaixa = () => {
         livre: selectedOption.toLocaleLowerCase() === "sim" ? true : false,
         nome: Nnome
       });
-
-      menssagem('Dados salvos e sincronizados com sucesso!', false);
-      console.log("Document written with ID: ", docRef);
       
-      // Chama a função AtualizaSupabase após salvar os dados
-      await AtualizaCaixaSupabase();
+      // Atualiza Supabase
+      await AtualizaCaixaSupabase(
+        docRef,
+        livre,
+        Nnome,
+      );
       
     } catch (e) {
       // console.error("Error adding document: ", e);
@@ -150,10 +152,11 @@ const CadCaixa = () => {
           setNome("");
           setLivre(true);
           setSelectedRow(null);
-          menssagem('Dados excluídos e sincronizados com sucesso!', false);
           
-          // Chama a função AtualizaSupabase após excluir os dados
-          await AtualizaCaixaSupabase();
+          // Atualiza Supabase
+          await DeleteCaixaSupabase(
+            codigo
+          );
           
         } catch (error) {
           menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);

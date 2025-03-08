@@ -88,8 +88,6 @@ const CadastroEmail = () => {
       .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
-        // Chama a função AtualizaSupabase após criar o usuário no Firebase
-        await AtualizaSupabase();
       })
       .catch(async (error) => {
         const errorCode = error.code;
@@ -109,8 +107,8 @@ const CadastroEmail = () => {
                 menssagem('Email salvo com sucesso!', false);
                 console.log("Document written with ID: ", docRef);
 
-                // Chama a função AtualizaSupabase após salvar o email
-                await AtualizaSupabase();
+                // Atualiza Supabase
+                await SalvarEmailSupabase();
 
               } catch (e) {
                 //console.error("Error adding document: ", e);
@@ -178,9 +176,6 @@ const CadastroEmail = () => {
           setNovoEmail("");
           setSelectedRow(null);
           setSenha('');
-
-          // Chama a função AtualizaSupabase após excluir o email
-          await AtualizaSupabase();
 
           menssagem('Dados excluídos com sucesso!', false);
         } catch (error) {

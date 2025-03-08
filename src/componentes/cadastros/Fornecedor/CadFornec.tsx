@@ -5,7 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import db from '../../../firebase/database';
 import { FornecedorProps } from '../../../paginas/main';
 import { menssagem } from '../../menssagem';
-import {syncFornecedorSupabase} from '../../../supabase/syncFornecedorSupabase';
+import { AtualizaFornecedorSupabase } from '../../../supabase/syncFornecedorSupabase';
 
 const CadastroFornecedor = () => {
   const [fornecedores, setFornecedores] = useState<FornecedorProps[]>([]);
@@ -60,12 +60,16 @@ const CadastroFornecedor = () => {
         id_fornecedor: codigo,
         nome: nome.toUpperCase(),
         cidade: cidade.toUpperCase(),
-        ativo: ativo
+        ativo: ativo,
       });
-      menssagem('Dados salvos e sincronizados com sucesso!', false);
       
-      // Sincroniza com o Supabase
-      await syncFornecedorSupabase();
+      // Atualiza Supabase
+      await AtualizaFornecedorSupabase(
+        codigo,
+        nome,
+        cidade,
+        ativo,
+      );
       
     } catch (e) {
       console.error("Error adding document: ", e);
