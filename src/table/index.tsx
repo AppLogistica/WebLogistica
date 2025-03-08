@@ -144,7 +144,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
   const renderTableHeader = () => {
     return (
 
-    <thead style={{ position: "sticky", top: '50px', backgroundColor: "#242424", color: "white", }}>
+    <thead style={{ position: "sticky", top: '50px', backgroundColor: "#242424", color: "white", borderBottom:'2px solid #8f7cec', }}>
       <tr>
         <th>Código</th>
         <th>Fornecedor</th>
@@ -541,7 +541,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
       {/* <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button> */}
 
       
-      <button style={{ width:200, position: "sticky", top: 3, left: '100%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma" onClick={addSemana} > <b> CONFIRMAR</b> </button> 
+      <button style={{ width:230, position: "sticky", top: 3, left: '100%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma" onClick={addSemana} ><b>CONFIRMAR</b></button> 
 
 
       <table>
