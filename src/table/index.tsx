@@ -75,10 +75,10 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     const docSnap = await getDoc(docRef);
 
     if (docSnap.data().ativo !== "Inativos") {
-      const resp = window.confirm(`Esse proceso encontra-se ${docSnap.data().ativo.toUpperCase()}, deseja realmente excluir? \n
-Excluir esse item irá excluir todos os procesos ligados a ele! \n
-A exclusão só será executada quando for confirmado as alterações através do botão "verde" (confirmar)`);
-
+      const resp = window.confirm(`
+        Esse proceso encontra-se ${docSnap.data().ativo.toUpperCase()}, deseja realmente excluir? \n
+        Excluir esse item irá excluir todos os procesos ligados a ele! \n
+        A exclusão só será executada quando for confirmado as alterações através do botão "verde" (confirmar)`);
       if (!resp) {
         window.location.reload();
       }
@@ -138,8 +138,8 @@ A exclusão só será executada quando for confirmado as alterações através d
   const renderTableHeader = () => {
     return (
 
-<thead style={{ position: "sticky", top: '50px', backgroundColor: "#242424", color: "white", }}>
-<tr>
+    <thead style={{ position: "sticky", top: '50px', backgroundColor: "#242424", color: "white", }}>
+      <tr>
         <th>Código</th>
         <th>Fornecedor</th>
         {DiasSemana.map((day) => (
@@ -151,19 +151,7 @@ A exclusão só será executada quando for confirmado as alterações através d
           </th>
         ))}
       </tr>
-    </thead>
-    
-
-
-
-
-    
-
-  
-
-    
-
-    
+    </thead>   
     );
   };
 
@@ -171,9 +159,6 @@ A exclusão só será executada quando for confirmado as alterações através d
 
   function handleContextMenu(event, semanaDay: string) {
     event.preventDefault();
-
-
-
     setShowMenu(true);
     setMenuPosition({ x: event.clientX, y: event.clientY });
     setSemanaSel(semanaDay);

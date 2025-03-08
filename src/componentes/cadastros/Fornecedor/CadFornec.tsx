@@ -181,8 +181,6 @@ const CadastroFornecedor = () => {
     </>
   );
   
-  
-  
 };
 
 export default CadastroFornecedor;

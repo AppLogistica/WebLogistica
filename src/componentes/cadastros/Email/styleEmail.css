@@ -1,67 +1,61 @@
 .divForm {
-    box-shadow: 0 0 5px #8f7cec, 0 0 10px #8f7cec;
-    background-color: #242424;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
-  
-  .tableForm {
-    
-    width: 200%;
-    height: 100%;
-    border-collapse: collapse;
-  }
-  
-  .headTable {
-    background-color: #9b8edf;
-  }
-  
-  .body,
-  td {
-    padding: 0.5em;
-    text-align: center;
-    border-bottom: 1px solid #8f7cec;
-    box-shadow: 0 0 2px #8f7cec
-  }
-  
-  #thEmail {
-    width: 10%;
-  }
-  
-  .divide {
-    width: 1px;
-    height: 100%;
-    background-color: #8f7cec;
-  }
-  
-  .formu {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .formu label {
-    margin: 2rem 0 0.5rem 2rem;
-  }
-  
-  .formu input {
-    margin: 0 2rem 0 2rem;
-    height: 30px;
-  }
-  
-  .formu button {
-    margin-top: 3rem;
-    margin-left: 2rem;
-    width: 35%;
-    height: 50px;
-    border-radius: 15px;
-    border-style: none;
-  }
-  
-  /*background-color: #242424;*/
-  
-  
-  
-  /*border-collapse: collapse;*/
+  box-shadow: 0 0 5px #8f7cec, 0 0 10px #8f7cec;
+  background-color: #242424;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+.tableForm {
+
+  width: 200%;
+  height: 100%;
+  border-collapse: collapse;
+}
+
+.headTable {
+  background-color: #9b8edf;
+}
+
+.body,
+td {
+  padding: 0.5em;
+  text-align: center;
+  border-bottom: 1px solid #8f7cec;
+  box-shadow: 0 0 2px #8f7cec
+}
+
+#thEmail {
+  width: 10%;
+}
+
+.divide {
+  width: 1px;
+  height: 100%;
+  background-color: #8f7cec;
+}
+
+.formu {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.formu label {
+  margin: 2rem 0 0.5rem 2rem;
+}
+
+.formu input {
+  margin: 0 2rem 0 2rem;
+  height: 30px;
+}
+
+.formu button {
+  margin-top: 3rem;
+  margin-left: 2rem;
+  width: 35%;
+  height: 50px;
+  border-radius: 15px;
+  border-style: none;
+}

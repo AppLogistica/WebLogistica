@@ -59,10 +59,11 @@ const CadCaixa = () => {
         querySnapshot.forEach(async (documento) => {
           if (`${documento.data().id_caixa}` === codigo) {
             count = 1;
-            window.confirm(`Essa caixa está em uso no processo ${documento.data().id_semana}?\n
-  Fornecedor: ${`${documento.data().id_fornecedor}`.padStart(2, '0')}
-  Data: ${documento.data().data}
-  Finalize esse processo no app primeiro ou exclua na aba inicio do web`);
+            window.confirm(`
+              Essa caixa está em uso no processo ${documento.data().id_semana}?\n
+              Fornecedor: ${`${documento.data().id_fornecedor}`.padStart(2, '0')}
+              Data: ${documento.data().data}
+              Finalize esse processo no app primeiro ou exclua na aba inicio do web`);
           }
         });
 
