@@ -11,11 +11,11 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#8e00a8',
+                        backgroundColor: '#ff6600',
                         color: 'white',
-                        border: '2px solid #FFFFFF',
+                        border: '2px solid #ffffff',
                     }}>
-                    Inicio
+                    <b>INÍCIO</b>
                 </div>
             </a>
 
@@ -28,11 +28,11 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#8e00a8', // Cor corrigida
+                        backgroundColor: '#ff6600', 
                         color: 'white',
                         border: '2px solid #FFFFFF',
                     }}>
-                    Email
+                   <b>EMAIL</b>
                 </div>
             </a>
 
@@ -45,11 +45,11 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#8e00a8', // Cor corrigida
+                        backgroundColor: '#ff6600',
                         color: 'white',
                         border: '2px solid #FFFFFF',
                     }}>
-                    Fornecedores
+                    <b>FORNECEDRES</b>
                 </div>
             </a>
 
@@ -62,11 +62,11 @@ export function Menu() {
                         justifyContent: "center",
                         alignItems: "center",
                         borderRadius: "8px",
-                        backgroundColor: '#8e00a8', // Cor corrigida
+                        backgroundColor: '#ff6600',
                         color: 'white',
                         border: '2px solid #FFFFFF',
                     }}>
-                    Caixa
+                    <b>CAIXA</b>
                 </div>
             </a>
         </div>

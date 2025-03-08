@@ -14,6 +14,7 @@ import { firestore } from "firebase-admin";
 import moment from 'moment';
 import { supabase } from "../supabase/database";
 
+
 export interface TableProps {
   fornec: FornecedorProps[];
 }
@@ -154,6 +155,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     </thead>   
     );
   };
+
 
   const [semanaSel, setSemanaSel] = useState('');
 
@@ -473,9 +475,9 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     <>
       <div><Toaster /></div>
       <div className="topTable" >
-        <button onClick={SemanaAnterior}  style={{ backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}>Semana Anterior</button>
+        <button onClick={SemanaAnterior}  style={{width:200, backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}><b>SEMANA ANTERIOR</b></button>
 
-        <button onClick={SemanaSeguinte} style={{ backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}>Próxima Semana</button>
+        <button onClick={SemanaSeguinte} style={{width:200, backgroundColor: '#FFA500', color: 'white',  border: '2px solid #FFFFFF',}}><b>PRÓXIMA SEMANA</b></button>
         
       </div>
 
@@ -502,7 +504,6 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
       <div style={{position: 'sticky', top:-20 , marginBottom: -75, backgroundColor: '#242424', border: '20px solid #242424',}}>
 
-
       <input
           type="text"
           placeholder="PESQUISAR FORNECEDOR..."
@@ -511,10 +512,15 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
           style={{ padding: '8px', borderRadius: '4px', border: '3px solid #685da4', width: '22%', height: '40px',fontStyle: 'italic', fontWeight: 'bold', }}
         />
       </div>
-   
-    <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button>
-      <button style={{ width: 160, position: "sticky", top: 3, left: '70%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma" onClick={addSemana} >Confirmar</button> 
+
       
+   
+      {/* <button style={{ width: 160, position: "sticky", top:3, left: '85%', backgroundColor: '#008080', color: 'white',  border: '2px solid #FFFFFF',}} onClick={AtualizaSupabase}>Sincronizar</button> */}
+
+      
+      <button style={{ width:200, position: "sticky", top: 3, left: '100%',  backgroundColor: '#008000', color: 'white',  border: '2px solid #FFFFFF',}}  className="botaoConfirma" onClick={addSemana} > <b> CONFIRMAR</b> </button> 
+
+
       <table>
         {renderTableHeader()}
         {renderTableBody()}
@@ -526,6 +532,7 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     </>
   );
 };
+
 
 export default Table;
 
