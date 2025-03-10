@@ -91,6 +91,9 @@ const CadCaixa = () => {
         livre: selectedOption.toLocaleLowerCase() === "sim" ? true : false,
         nome: Nnome
       });
+
+      menssagem('Caixa salva com sucesso!', false);
+
       
       // Atualiza Supabase
       await AtualizaCaixaSupabase(
@@ -100,7 +103,7 @@ const CadCaixa = () => {
       );
       
     } catch (e) {
-      // console.error("Error adding document: ", e);
+      console.error("Error adding document: ", e);
       // menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
       return;
     }
@@ -141,7 +144,7 @@ const CadCaixa = () => {
   async function excluir() {
     event.preventDefault();
     if (codigo) {
-      const confirmarExclusao = window.confirm('Tem certeza que deseja excluir este fornecedor?');
+      const confirmarExclusao = window.confirm('Tem certeza que deseja excluir essa Caixa?');
       if (confirmarExclusao) {
         try {
           console.log(codigo);
@@ -152,6 +155,9 @@ const CadCaixa = () => {
           setNome("");
           setLivre(true);
           setSelectedRow(null);
+
+          menssagem('Dados excluidos e sincronizados com sucesso!', false);
+
           
           // Atualiza Supabase
           await DeleteCaixaSupabase(

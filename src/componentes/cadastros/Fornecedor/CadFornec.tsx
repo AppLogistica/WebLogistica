@@ -62,6 +62,9 @@ const CadastroFornecedor = () => {
         cidade: cidade.toUpperCase(),
         ativo: ativo,
       });
+
+      menssagem('Fornecedor salvo com sucesso!', false);
+      // console.log("Document written with ID: ", docRef);
       
       // Atualiza Supabase
       await AtualizaFornecedorSupabase(
@@ -73,7 +76,7 @@ const CadastroFornecedor = () => {
       
     } catch (e) {
       console.error("Error adding document: ", e);
-      menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
+      // menssagem(`Erro ao salvar! \n ${codigo} ${nome}`, true);
       return;
     }
   };
@@ -106,7 +109,7 @@ const CadastroFornecedor = () => {
           await syncFornecedorSupabase();
           
         } catch (error) {
-          menssagem(`Erro ao excluir! \n ${codigo} ${nome}`, true);
+          // menssagem(`Erro ao excluir! \n ${codigo} ${nome}`, true);
         }
       } else {
         console.log('erro');

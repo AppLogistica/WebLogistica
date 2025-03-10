@@ -23,6 +23,6 @@ export async function AtualizaCaixaSupabase(id, livre, nome) {
     console.log("Sincronização concluída com sucesso!");
   } catch (error) {
     console.error('Exceção na sincronização de caixas:', error);
-    menssagem('Exceção na sincronização de caixas AtualizaCaixaSupabase', true);
+    // menssagem('Exceção na sincronização de caixas AtualizaCaixaSupabase', true);
   }
 }
