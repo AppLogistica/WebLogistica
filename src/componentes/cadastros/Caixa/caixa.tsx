@@ -161,7 +161,7 @@ const CadCaixa = () => {
           
           // Atualiza Supabase
           await DeleteCaixaSupabase(
-            codigo
+            codigo 
           );
           
         } catch (error) {
