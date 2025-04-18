@@ -106,7 +106,7 @@ const CadastroFornecedor = () => {
           menssagem('Dados excluidos e sincronizados com sucesso!', false);
           
           // Sincroniza com o Supabase
-          await syncFornecedorSupabase();
+          await AtualizaFornecedorSupabase();
           
         } catch (error) {
           // menssagem(`Erro ao excluir! \n ${codigo} ${nome}`, true);

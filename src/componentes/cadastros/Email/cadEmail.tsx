@@ -5,7 +5,6 @@ import toast, { Toaster } from 'react-hot-toast'
 import db from '../../../firebase/database';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth";
 import { auth as authAdm }  from "firebase-admin"
-import { AtualizaSupabase } from '../../../supabase/syncSupabase';
 
 import { menssagem } from '../../menssagem';
 import { useAuth } from '../../../context/AuthContext';
@@ -106,9 +105,6 @@ const CadastroEmail = () => {
                 });
                 menssagem('Email salvo com sucesso!', false);
                 console.log("Document written with ID: ", docRef);
-
-                // Atualiza Supabase
-                await SalvarEmailSupabase();
 
               } catch (e) {
                 //console.error("Error adding document: ", e);
