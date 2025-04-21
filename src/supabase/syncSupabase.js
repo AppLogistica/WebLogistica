@@ -18,18 +18,22 @@ export async function AtualizaSupabase() {
     querysemana.docs.map(async (item) => {
 
       const { data: Datasemana, error } = await supabase
-        .from('semana')
-        .upsert([{
-          id_semana: item.data().id_semana,
-          id_caixa: item.data().id_caixa,
-          inserido_em: moment(item.data().inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id: item.id,
-          ativo: item.data().ativo,
-          status: item.data().status,
-          cor: item.data().cor,
-          data_: moment(item.data().data, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-          id_fornecedor: item.data().id_fornecedor
-        }]);
+      .from('semana')
+      .upsert([{
+        id_semana: item.data().id_semana,
+        id_caixa: item.data().id_caixa,
+        inserido_em: moment(item.data().inserido_em, 'DD/MM/YYYY').isValid()
+          ? moment(item.data().inserido_em, 'DD/MM/YYYY').format('YYYY-MM-DD')
+          : null,
+        id: item.id,
+        ativo: item.data().ativo,
+        status: item.data().status,
+        cor: item.data().cor,
+        data_: moment(item.data().data_, 'DD/MM/YYYY').isValid()
+          ? moment(item.data().data_, 'DD/MM/YYYY').format('YYYY-MM-DD')
+          : null,
+        id_fornecedor: item.data().id_fornecedor
+      }]);
 
       const historicoRef = query(collection(db, "historicoStatus"), where("id_HistóricoSemana", "==", item.data().id_semana));
       const queryHistorico = await getDocs(historicoRef);
