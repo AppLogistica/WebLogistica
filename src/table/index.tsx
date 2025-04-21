@@ -330,23 +330,27 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
     Object.entries(dadosNovos).forEach(([dia, dados]) => {
       if (dados.length > 0) {
         dados.map(async id_fornec => {
-          let dataDia = dia.replaceAll('/', '');
+          const dataDia = dia.replaceAll('/', '');
           const id_fornecFormat = id_fornec.toString().padStart(4, '0');
           const auxSemana = `${dataDia}.${id_fornecFormat}`;
           const docRef = doc(db, "semana", auxSemana);
           const docSnap = await getDoc(docRef);
-          const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+          const dataFormatada = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD'); // para Date()
           const dataTemp = new Date(dataFormatada + 'T03:00:00.000Z');
-  
+
+          const dataSupabase = moment(dia, 'DD/MM/YYYY').format('YYYY-MM-DD'); // formato YYYY-MM-DD
+          const inseridoEmSupabase = moment().format('YYYY-MM-DD'); // também em YYYY-MM-DD
+
           if (!docSnap.exists()) {
             try {
-              await setDoc(doc(db, "semana", `${dataDia}.${id_fornecFormat}`), {
-                id_semana: `${dataDia}.${id_fornecFormat}`,
+              await setDoc(doc(db, "semana", auxSemana), {
+                id_semana: auxSemana,
                 id_fornecedor: id_fornec,
                 id_caixa: null,
                 data: dia,
                 ativo: 'Inativos',
-                inserido_em: formatFns(new Date(), "dd/MM/yyyy"),
+                inserido_em: moment().format('DD/MM/YYYY'), // este continua como string legível
                 status: '',
                 cor: 'gray',
                 DataTime: dataTemp
@@ -354,19 +358,19 @@ const Table: React.FC<TableProps> = ({ fornec }) => {
 
               // Atualiza Supabase
               await InsertSemanaSupabase(
-                `${dataDia}.${id_fornecFormat}`,
-                 null,
-                 formatFns(new Date(), "dd/MM/yyyy"),
-                 `${dataDia}.${id_fornecFormat}`,
-                 'Inativos',
-                 '',
-                 'gray',
-                 dia,
-                 id_fornec
+                auxSemana,
+                null,
+                inseridoEmSupabase,
+                auxSemana,
+                'Inativos',
+                '',
+                'gray',
+                dataSupabase,
+                id_fornec
               );
             } catch (e) {
-              //console.error("Error adding document: ", e);
-              //menssagem(`Erro ao salvar! \n ${dataDia}.${id_fornecFormat}`, true);
+              // console.error("Erro ao salvar!", e);
+              // menssagem(`Erro ao salvar! \n ${auxSemana}`, true);
             }
           }
         });
